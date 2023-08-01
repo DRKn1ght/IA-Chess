@@ -74,9 +74,6 @@ class ChessGame:
         if self.active_piece: 
             if checked_square in self.active_piece.possible_movements(self.white_pieces, self.black_pieces, king):
                 self._move(friendly_pieces, enemy_pieces, checked_square)
-                Sssquare = (5, 7)
-                self.get_piece_at_square(Sssquare)
-                print(" ========== \n")
                 #print(self.positions)
             else:
                 active_piece = None
@@ -218,30 +215,19 @@ class ChessGame:
 
         active_color = "w" if self.turn == 'w' else "b"
         castling_rights = ""
-        if not self.white_king.already_moved:
-            if not self.white_rook_king_side.already_moved:
-                if not any(self.get_piece_at_square(square) for square in [(5, 0), (6, 0)]):
-                    castling_rights += "K"
-            if not self.white_rook_queen_side.already_moved:
-                if not any(self.get_piece_at_square(square) for square in [(1, 0), (2, 0), (3, 0)]):
-                    castling_rights += "Q"
+        if len(self.white_king.short_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'K'
+        if len(self.white_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'Q'
 
-        if not self.black_king.already_moved:
-            if not self.black_rook_king_side.already_moved:
-                if not any(self.get_piece_at_square(square) for square in [(5, 7), (6, 7)]):
-                    castling_rights += "k"
-            if not self.black_rook_queen_side.already_moved:
-                if not any(self.get_piece_at_square(square) for square in [(1, 7), (2, 7), (3, 7)]):
-                    castling_rights += "q"
-        friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
-        enemy_pieces = self.white_pieces if self.turn == "b" else self.black_pieces
-        for piece in enemy_pieces:
-            if type(piece) is Pawn and piece.en_passant:
-                print(piece.square)
-                break
-        
+        if len(self.black_king.short_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'k'
+        if len(self.black_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'q'
 
-        fen_notation = f"{fen_position} {active_color} {castling_rights}"
+        en_passant_target = self.get_en_passant_target()
+
+        fen_notation = f"{fen_position} {active_color} {castling_rights} {en_passant_target}"
         return fen_notation
 
     def get_piece_at_square(self, square):
@@ -250,6 +236,22 @@ class ChessGame:
             if (piece.square == square):
                 return piece
         return None
+    
+    def get_en_passant_target(self):
+        letter = 'abcdefgh'
+        nums = '87654321'
+        en_passant_target = '-'
+        friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
+        enemy_pieces = self.white_pieces if self.turn == "b" else self.black_pieces
+        for piece in friendly_pieces:
+            if type(piece) is Pawn:
+                target = piece.move_en_passant(enemy_pieces)
+                if len(target) > 0:
+                    target = target[0]
+                    en_passant_target = letter[target[0]] + nums[target[1]]
+                    break
+        return en_passant_target
+
 
     def _check_checkmate(self, color, pieces, king):
         """ Check if the king is in checkmate """
