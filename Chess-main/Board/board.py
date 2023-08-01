@@ -1,0 +1,161 @@
+import pygame
+from game.piece.pawn import Pawn
+from game.piece.king import King
+from game.piece.rook import Rook
+from game.piece.knight import Knight
+from game.piece.queen import Queen
+from game.piece.bishop import Bishop
+from game.piece.new_game import create_white_pieces, create_black_pieces
+
+class Board:
+    """ A class to manage the board """
+
+    def __init__(self, ai_game):
+        """ Create a new board """
+        self.screen = ai_game.screen
+        self.settings = ai_game.settings
+
+        self.square_size = self.settings.square_size
+
+        self.array = []
+        for i in range(8):
+            if i%2:
+                self.array.append([1 if j%2 else 0 for j in range(8)])
+            else:
+                self.array.append([0 if j%2 else 1 for j in range(8)])
+
+    def update(self):
+        """ Draw the board on the screen """
+        for i in range(8):
+            for j in range(8):
+                pygame.draw.rect(self.screen, 
+                                 self.settings.light_color if self.array[i][j] else self.settings.dark_color, 
+                                 (i*self.square_size, j*self.square_size, self.square_size, self.square_size))
+
+    def _get_position(self):
+        """ Return a string representing the position """
+        actual_position = []
+        for piece in self.white_pieces:
+            if type(piece) is Pawn:
+                piece_status = f"{piece.name}, {piece.square}, {piece.en_passant} "
+            elif type(piece) is King or type(piece) is Rook:
+                piece_status = f"{piece.name}, {piece.square}, {piece.already_moved} "
+            else:
+                piece_status = f"{piece.name}, {piece.square} "
+            actual_position.append(piece_status)
+        for piece in self.black_pieces:
+            if type(piece) is Pawn:
+                piece_status = f"{piece.name}, {piece.square}, {piece.en_passant} "
+            elif type(piece) is King or type(piece) is Rook:
+                piece_status = f"{piece.name}, {piece.square}, {piece.already_moved} "
+            else:
+                piece_status = f"{piece.name}, {piece.square} "
+            actual_position.append(piece_status)
+        return "".join(sorted(actual_position))
+
+    def _get_FEN_position(self):
+        """ Return a string representing the position in FEN notation """
+        def get_piece_symbol(piece):
+            if isinstance(piece, Pawn):
+                return "P" if piece.color == 'w' else "p"
+            if isinstance(piece, Knight):
+                return "N" if piece.color == 'w' else "n"
+            if isinstance(piece, Bishop):
+                return "B" if piece.color == 'w' else "b"
+            if isinstance(piece, Rook):
+                return "R" if piece.color == 'w' else "r"
+            if isinstance(piece, Queen):
+                return "Q" if piece.color == 'w' else "q"
+            if isinstance(piece, King):
+                return "K" if piece.color == 'w' else "k"
+            return None
+        board_rows = []
+        for row in range(8):
+            empty_squares = 0
+            fen_row = ""
+            for col in range(8):
+                square = (col, row)
+                piece = self.get_piece_at_square(square)
+                if piece is None:
+                    empty_squares += 1
+                else:
+                    if empty_squares > 0:
+                        fen_row += str(empty_squares)
+                        empty_squares = 0
+                    fen_row += get_piece_symbol(piece)
+            if empty_squares > 0:
+                fen_row += str(empty_squares)
+            board_rows.append(fen_row)
+
+        fen_position = "/".join(board_rows)
+
+        active_color = "w" if self.turn == 'w' else "b"
+        castling_rights = ""
+        if len(self.white_king.short_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'K'
+        if len(self.white_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'Q'
+
+        if len(self.black_king.short_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'k'
+        if len(self.black_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
+            castling_rights += 'q'
+
+        en_passant_target = self.get_en_passant_target()
+
+        fen_notation = f"{fen_position} {active_color} {castling_rights} {en_passant_target}"
+        return fen_notation
+
+    def get_piece_at_square(self, square):
+        all_pieces = self.white_pieces.sprites() + self.black_pieces.sprites()
+        for piece in all_pieces:
+            if (piece.square == square):
+                return piece
+        return None
+    
+    def get_en_passant_target(self):
+        letter = 'abcdefgh'
+        nums = '87654321'
+        en_passant_target = '-'
+        friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
+        enemy_pieces = self.white_pieces if self.turn == "b" else self.black_pieces
+        for piece in friendly_pieces:
+            if type(piece) is Pawn:
+                target = piece.move_en_passant(enemy_pieces)
+                if len(target) > 0:
+                    target = target[0]
+                    en_passant_target = letter[target[0]] + nums[target[1]]
+                    break
+        return en_passant_target
+    
+    def _reset_all(self):
+        """ Reset all and init a new game """
+        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
+        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
+
+        self.turn = "w"
+        self.active_piece = None
+        self.fifty_movements = 0
+        self.positions = {}
+
+        self.game_active = True
+        
+    def _update_screen(self):
+        """ Show the screen """
+        self.screen.fill((0,0,0))
+
+        if self.game_active:
+            self.board.update()
+
+            if self.active_piece:
+                self._draw_possible_movements()
+
+            self.white_pieces.draw(self.screen)
+            self.black_pieces.draw(self.screen)
+        else:
+            self.results.update()
+
+        pygame.display.update()
+
+    def mov(self, piece, square):
+        pass
