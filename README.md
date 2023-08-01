@@ -4,7 +4,9 @@ https://github.com/Vanaldito/Chess
 
 TODO:  
 Colocar board.py em uma pasta board  
+
 > Board/board.py  
+
 arquivo chess.py:  
 Funções:  
 - _get_position
