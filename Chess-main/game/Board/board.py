@@ -130,8 +130,8 @@ class Board:
     
     def _reset_all(self):
         """ Reset all and init a new game """
-        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
-        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
+        self.white_king, self.white_pieces = create_white_pieces(self)
+        self.black_king, self.black_pieces = create_black_pieces(self)
 
         self.turn = "w"
         self.active_piece = None
