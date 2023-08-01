@@ -1,11 +1,11 @@
 import pygame
-from game.piece.pawn import Pawn
-from game.piece.king import King
-from game.piece.rook import Rook
-from game.piece.knight import Knight
-from game.piece.queen import Queen
-from game.piece.bishop import Bishop
-from game.piece.new_game import create_white_pieces, create_black_pieces
+from piece.pawn import Pawn
+from piece.king import King
+from piece.rook import Rook
+from piece.knight import Knight
+from piece.queen import Queen
+from piece.bishop import Bishop
+from piece.new_game import create_white_pieces, create_black_pieces
 
 class Board:
     """ A class to manage the board """
@@ -75,7 +75,7 @@ class Board:
             fen_row = ""
             for col in range(8):
                 square = (col, row)
-                piece = self.get_piece_at_square(square)
+                piece = Board.get_piece_at_square(self, square)
                 if piece is None:
                     empty_squares += 1
                 else:
@@ -101,7 +101,7 @@ class Board:
         if len(self.black_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
             castling_rights += 'q'
 
-        en_passant_target = self.get_en_passant_target()
+        en_passant_target = Board.get_en_passant_target(self)
 
         fen_notation = f"{fen_position} {active_color} {castling_rights} {en_passant_target}"
         return fen_notation

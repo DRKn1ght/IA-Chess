@@ -2,16 +2,12 @@ import pygame, sys
 
 from pygame.locals import *
 
-from game.piece.new_game import create_white_pieces, create_black_pieces
+from piece.new_game import create_white_pieces, create_black_pieces
 from settings import Settings
-from results import Results
+from GUI.results import Results
 from Board.board import Board
-from game.piece.pawn import Pawn
-from game.piece.king import King
-from game.piece.rook import Rook
-from game.piece.knight import Knight
-from game.piece.queen import Queen
-from game.piece.bishop import Bishop
+from piece.pawn import Pawn
+from piece.king import King
 
 class ChessGame:
     """ A class to manage the game """
