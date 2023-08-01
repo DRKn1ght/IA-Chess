@@ -9,6 +9,9 @@ from game.board import Board
 from game.piece.pawn import Pawn
 from game.piece.king import King
 from game.piece.rook import Rook
+from game.piece.knight import Knight
+from game.piece.queen import Queen
+from game.piece.bishop import Bishop
 
 class ChessGame:
     """ A class to manage the game """
@@ -27,8 +30,8 @@ class ChessGame:
 
         self.board = Board(self)
 
-        self.white_king, self.white_pieces = create_white_pieces(self)
-        self.black_king, self.black_pieces = create_black_pieces(self)
+        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
+        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
 
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
@@ -71,6 +74,10 @@ class ChessGame:
         if self.active_piece: 
             if checked_square in self.active_piece.possible_movements(self.white_pieces, self.black_pieces, king):
                 self._move(friendly_pieces, enemy_pieces, checked_square)
+                Sssquare = (5, 7)
+                self.get_piece_at_square(Sssquare)
+                print(" ========== \n")
+                #print(self.positions)
             else:
                 active_piece = None
                 for piece in friendly_pieces:
@@ -145,7 +152,7 @@ class ChessGame:
             self.positions[actual_position] = 1
 
         self.turn = "b" if self.turn == "w" else "w"
-
+        print(self._get_position2())
         self.active_piece = None
 
         king = self.white_king if self.turn == "w" else self.black_king
@@ -157,21 +164,92 @@ class ChessGame:
         actual_position = []
         for piece in self.white_pieces:
             if type(piece) is Pawn:
-                piece_status = f"{piece.name}, {piece.square}, {piece.en_passant}"
+                piece_status = f"{piece.name}, {piece.square}, {piece.en_passant} "
             elif type(piece) is King or type(piece) is Rook:
-                piece_status = f"{piece.name}, {piece.square}, {piece.already_moved}"
+                piece_status = f"{piece.name}, {piece.square}, {piece.already_moved} "
             else:
-                piece_status = f"{piece.name}, {piece.square}"
+                piece_status = f"{piece.name}, {piece.square} "
             actual_position.append(piece_status)
         for piece in self.black_pieces:
             if type(piece) is Pawn:
-                piece_status = f"{piece.name}, {piece.square}, {piece.en_passant}"
+                piece_status = f"{piece.name}, {piece.square}, {piece.en_passant} "
             elif type(piece) is King or type(piece) is Rook:
-                piece_status = f"{piece.name}, {piece.square}, {piece.already_moved}"
+                piece_status = f"{piece.name}, {piece.square}, {piece.already_moved} "
             else:
-                piece_status = f"{piece.name}, {piece.square}"
+                piece_status = f"{piece.name}, {piece.square} "
             actual_position.append(piece_status)
         return "".join(sorted(actual_position))
+
+    def _get_position2(self):
+        """ Return a string representing the position in FEN notation """
+        def get_piece_symbol(piece):
+            if isinstance(piece, Pawn):
+                return "P" if piece.color == 'w' else "p"
+            if isinstance(piece, Knight):
+                return "N" if piece.color == 'w' else "n"
+            if isinstance(piece, Bishop):
+                return "B" if piece.color == 'w' else "b"
+            if isinstance(piece, Rook):
+                return "R" if piece.color == 'w' else "r"
+            if isinstance(piece, Queen):
+                return "Q" if piece.color == 'w' else "q"
+            if isinstance(piece, King):
+                return "K" if piece.color == 'w' else "k"
+            return None
+        board_rows = []
+        for row in range(8):
+            empty_squares = 0
+            fen_row = ""
+            for col in range(8):
+                square = (col, row)
+                piece = self.get_piece_at_square(square)
+                if piece is None:
+                    empty_squares += 1
+                else:
+                    if empty_squares > 0:
+                        fen_row += str(empty_squares)
+                        empty_squares = 0
+                    fen_row += get_piece_symbol(piece)
+            if empty_squares > 0:
+                fen_row += str(empty_squares)
+            board_rows.append(fen_row)
+
+        fen_position = "/".join(board_rows)
+
+        active_color = "w" if self.turn == 'w' else "b"
+        castling_rights = ""
+        if not self.white_king.already_moved:
+            if not self.white_rook_king_side.already_moved:
+                if not any(self.get_piece_at_square(square) for square in [(5, 0), (6, 0)]):
+                    castling_rights += "K"
+            if not self.white_rook_queen_side.already_moved:
+                if not any(self.get_piece_at_square(square) for square in [(1, 0), (2, 0), (3, 0)]):
+                    castling_rights += "Q"
+
+        if not self.black_king.already_moved:
+            if not self.black_rook_king_side.already_moved:
+                if not any(self.get_piece_at_square(square) for square in [(5, 7), (6, 7)]):
+                    castling_rights += "k"
+            if not self.black_rook_queen_side.already_moved:
+                if not any(self.get_piece_at_square(square) for square in [(1, 7), (2, 7), (3, 7)]):
+                    castling_rights += "q"
+        friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
+        enemy_pieces = self.white_pieces if self.turn == "b" else self.black_pieces
+        for piece in enemy_pieces:
+            if type(piece) is Pawn and piece.en_passant:
+                print(piece.square)
+                break
+        
+
+        fen_notation = f"{fen_position} {active_color} {castling_rights}"
+        return fen_notation
+
+    def get_piece_at_square(self, square):
+        all_pieces = self.white_pieces.sprites() + self.black_pieces.sprites()
+        for piece in all_pieces:
+            if (piece.square == square):
+                return piece
+        return None
 
     def _check_checkmate(self, color, pieces, king):
         """ Check if the king is in checkmate """
@@ -218,8 +296,8 @@ class ChessGame:
 
     def _reset_all(self):
         """ Reset all and init a new game """
-        self.white_king, self.white_pieces = create_white_pieces(self)
-        self.black_king, self.black_pieces = create_black_pieces(self)
+        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
+        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
 
         self.turn = "w"
         self.active_piece = None

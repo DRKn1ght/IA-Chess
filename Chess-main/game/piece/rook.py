@@ -34,4 +34,3 @@ class Rook(Piece):
                 if flag:
                     movements.append(temporary_square)
         return movements
-
