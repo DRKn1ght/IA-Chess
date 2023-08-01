@@ -149,7 +149,7 @@ class ChessGame:
             self.positions[actual_position] = 1
 
         self.turn = "b" if self.turn == "w" else "w"
-        print(self._get_position2())
+        print(self._get_FEN_position())
         self.active_piece = None
 
         king = self.white_king if self.turn == "w" else self.black_king
@@ -177,7 +177,7 @@ class ChessGame:
             actual_position.append(piece_status)
         return "".join(sorted(actual_position))
 
-    def _get_position2(self):
+    def _get_FEN_position(self):
         """ Return a string representing the position in FEN notation """
         def get_piece_symbol(piece):
             if isinstance(piece, Pawn):
