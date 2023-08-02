@@ -18,6 +18,17 @@ class Board:
         self.square_size = self.settings.square_size
 
         self.array = []
+
+        self.white_king, self.white_pieces = create_white_pieces(self)
+        self.black_king, self.black_pieces = create_black_pieces(self)
+
+        self.fifty_movements = 0
+        self.positions = {}
+
+        self.game_active = True
+        self.turn = 'w'
+        self.active_piece = None
+
         for i in range(8):
             if i%2:
                 self.array.append([1 if j%2 else 0 for j in range(8)])
@@ -139,23 +150,6 @@ class Board:
         self.positions = {}
 
         self.game_active = True
-        
-    def _update_screen(self):
-        """ Show the screen """
-        self.screen.fill((0,0,0))
-
-        if self.game_active:
-            self.board.update()
-
-            if self.active_piece:
-                self._draw_possible_movements()
-
-            self.white_pieces.draw(self.screen)
-            self.black_pieces.draw(self.screen)
-        else:
-            self.results.update()
-
-        pygame.display.update()
 
     def _init_from_FEN(self, FEN):
         """ init a new game from FEN """
