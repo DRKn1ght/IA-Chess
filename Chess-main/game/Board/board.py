@@ -27,7 +27,6 @@ class Board:
 
         self.game_active = True
         self.turn = 'w'
-        self.active_piece = None
 
         for i in range(8):
             if i%2:

@@ -2,7 +2,6 @@ import pygame, sys
 
 from pygame.locals import *
 
-from piece.new_game import create_white_pieces, create_black_pieces
 from settings import Settings
 from results import Results
 from Board.board import Board
@@ -26,8 +25,10 @@ class ChessGame:
 
         self.board = Board(self)
 
-        self.board._init_from_FEN("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b  -")
+        self.board._init_from_FEN("r1b1k3/p7/3p1Q1b/6B1/3p4/2P5/P4PPP/RN2K2R w -")
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
+
+        self.active_piece = None
 
     def run_game(self):
         """ Init the game loop """
@@ -58,8 +59,8 @@ class ChessGame:
         enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
 
-        if self.board.active_piece: 
-            if checked_square in self.board.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
+        if self.active_piece: 
+            if checked_square in self.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
                 self._move(friendly_pieces, enemy_pieces, checked_square)
                 #print(self.board.positions)
             else:
@@ -67,17 +68,17 @@ class ChessGame:
                 for piece in friendly_pieces:
                     if piece.square == checked_square:
                         # Desactive the piece if press it two times
-                        if piece == self.board.active_piece:
+                        if piece == self.active_piece:
                             active_piece = None
                         # If press other piece, change the active piece
                         else:
                             active_piece = piece
                         break
-                self.board.active_piece = active_piece
+                self.active_piece = active_piece
         else:
             for piece in friendly_pieces:
                 if piece.square == checked_square:
-                    self.board.active_piece = piece
+                    self.active_piece = piece
                     break
 
     def _move(self, friendly_pieces, enemy_pieces, square):
@@ -85,8 +86,8 @@ class ChessGame:
         # The next lines is for the en passant capture 
 
         # Capture the piece en passant
-        if type(self.board.active_piece) is Pawn and square in self.board.active_piece.move_en_passant(enemy_pieces):
-            self.board.active_piece.movement((square[0], self.board.active_piece.square[1]))
+        if type(self.active_piece) is Pawn and square in self.active_piece.move_en_passant(enemy_pieces):
+            self.active_piece.movement((square[0], self.active_piece.square[1]))
             pygame.sprite.groupcollide(friendly_pieces, enemy_pieces, False, True)
 
         # The en passant capture only be made on the movement inmediately after of the enemy pawn 
@@ -95,39 +96,39 @@ class ChessGame:
             if type(piece) is Pawn:
                 piece.en_passant = False
 
-        if type(self.board.active_piece) is Pawn:
-            if square[1] == self.board.active_piece.square[1] + 2*self.board.active_piece.direction:
-                self.board.active_piece.en_passant = True
+        if type(self.active_piece) is Pawn:
+            if square[1] == self.active_piece.square[1] + 2*self.active_piece.direction:
+                self.active_piece.en_passant = True
 
         # The next lines is for castle
-        if type(self.board.active_piece) is King: 
+        if type(self.active_piece) is King: 
             # Short castle
-            movement, rook = self.board.active_piece.short_castle(self.board.white_pieces, self.board.black_pieces)
+            movement, rook = self.active_piece.short_castle(self.board.white_pieces, self.board.black_pieces)
             if square in movement:
                 rook.movement((rook.square[0]-2, rook.square[1]))
                 rook.already_moved = True
             # Large castle
-            movement, rook = self.board.active_piece.large_castle(self.board.white_pieces, self.board.black_pieces)
+            movement, rook = self.active_piece.large_castle(self.board.white_pieces, self.board.black_pieces)
             if square in movement:
                 rook.movement((rook.square[0]+3, rook.square[1]))
                 rook.already_moved = True
 
 
-        self.board.active_piece.movement(square)
+        self.active_piece.movement(square)
         self.sound.play()
-        self.board.active_piece.already_moved = True
+        self.active_piece.already_moved = True
 
         # Check the captures
         capture = pygame.sprite.groupcollide(friendly_pieces, enemy_pieces, False, True)
 
-        if capture or type(self.board.active_piece) is Pawn:
-            self.fifty_movements = 0
+        if capture or type(self.active_piece) is Pawn:
+            self.board.fifty_movements = 0
         else:
-            self.fifty_movements += 1
+            self.board.fifty_movements += 1
 
-        if type(self.board.active_piece) is Pawn:
+        if type(self.active_piece) is Pawn:
             # The pawn is turned into a queen
-            self.board.active_piece.promotion(friendly_pieces)
+            self.active_piece.promotion(friendly_pieces)
 
         actual_position = Board._get_position(self.board)
         if actual_position in self.board.positions.keys():
@@ -137,7 +138,7 @@ class ChessGame:
 
         self.board.turn = "b" if self.board.turn == "w" else "w"
         print(Board._get_FEN_position(self.board))
-        self.board.active_piece = None
+        self.active_piece = None
 
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
         self._check_checkmate(self.board.turn, enemy_pieces, king)
@@ -166,7 +167,7 @@ class ChessGame:
             self.board.game_active = False
 
         # 50 movements rules
-        if self.fifty_movements == 100:
+        if self.board.fifty_movements == 100:
             self.results.prep("The game is draw for", "fifty movements rule")
             self.board.game_active = False
 
@@ -179,11 +180,11 @@ class ChessGame:
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
 
         # Draw a rectangle in the active piece square
-        pygame.draw.rect(self.screen, self.settings.active_color, (self.board.active_piece.square[0]*self.settings.square_size,
-                         self.board.active_piece.square[1]*self.settings.square_size, self.settings.square_size, 
+        pygame.draw.rect(self.screen, self.settings.active_color, (self.active_piece.square[0]*self.settings.square_size,
+                         self.active_piece.square[1]*self.settings.square_size, self.settings.square_size, 
                          self.settings.square_size), 5, 1)       
 
-        for movement in self.board.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
+        for movement in self.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
             pygame.draw.circle(self.screen, self.settings.movement_color, ((movement[0]+0.5)*self.settings.square_size, 
                               (movement[1]+0.5)*self.settings.square_size), self.settings.square_size//3)
 
@@ -195,7 +196,7 @@ class ChessGame:
         if self.board.game_active:
             self.board.update()
 
-            if self.board.active_piece:
+            if self.active_piece:
                 self._draw_possible_movements()
 
             self.board.white_pieces.draw(self.screen)
