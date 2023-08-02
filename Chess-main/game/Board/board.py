@@ -5,7 +5,7 @@ from piece.rook import Rook
 from piece.knight import Knight
 from piece.queen import Queen
 from piece.bishop import Bishop
-from piece.new_game import create_white_pieces, create_black_pieces
+from piece.new_game import create_white_pieces, create_black_pieces, FEN_to_board
 
 class Board:
     """ A class to manage the board """
@@ -156,6 +156,17 @@ class Board:
             self.results.update()
 
         pygame.display.update()
+
+    def _init_from_FEN(self, FEN):
+        """ init a new game from FEN """
+        self.white_king, self.white_pieces, self.black_king, self.black_pieces = FEN_to_board(self, FEN)
+
+        self.turn = "w"
+        self.active_piece = None
+        self.fifty_movements = 0
+        self.positions = {}
+
+        self.game_active = True
 
     def mov(self, piece, square):
         pass

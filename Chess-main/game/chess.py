@@ -28,13 +28,8 @@ class ChessGame:
 
         self.white_king, self.white_pieces = create_white_pieces(self)
         self.black_king, self.black_pieces = create_black_pieces(self)
-
+        Board._init_from_FEN(self, "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b  -")
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
-
-        self.game_active = False
-
-        self.turn = "w"
-        self.active_piece = None
         self.fifty_movements = 0
         self.positions = {}
 
