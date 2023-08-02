@@ -1,11 +1,11 @@
 import pygame
-from game.piece.pawn import Pawn
-from game.piece.king import King
-from game.piece.rook import Rook
-from game.piece.knight import Knight
-from game.piece.queen import Queen
-from game.piece.bishop import Bishop
-from game.piece.new_game import create_white_pieces, create_black_pieces, FEN_to_board
+from piece.pawn import Pawn
+from piece.king import King
+from piece.rook import Rook
+from piece.knight import Knight
+from piece.queen import Queen
+from piece.bishop import Bishop
+from piece.new_game import create_white_pieces, create_black_pieces
 
 class Board:
     """ A class to manage the board """
@@ -130,19 +130,8 @@ class Board:
     
     def _reset_all(self):
         """ Reset all and init a new game """
-        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
-        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
-
-        self.turn = "w"
-        self.active_piece = None
-        self.fifty_movements = 0
-        self.positions = {}
-
-        self.game_active = True
-
-    def _init_from_FEN(self, FEN):
-        """ init a new game from FEN """
-        self.white_king, self.white_pieces, self.black_king, self.black_pieces = FEN_to_board(self, FEN)
+        self.white_king, self.white_pieces = create_white_pieces(self)
+        self.black_king, self.black_pieces = create_black_pieces(self)
 
         self.turn = "w"
         self.active_piece = None
