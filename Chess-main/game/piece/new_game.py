@@ -25,7 +25,7 @@ def create_white_pieces(ai_game):
     white_pieces.add(white_rook_king_side)
     white_pieces.add(white_king)
 
-    return white_king, white_pieces, white_rook_queen_side, white_rook_king_side
+    return white_king, white_pieces
 
 
 def create_black_pieces(ai_game):
@@ -47,4 +47,50 @@ def create_black_pieces(ai_game):
     black_pieces.add(black_rook_king_side)
     black_pieces.add(black_king)    
 
-    return black_king, black_pieces, black_rook_queen_side, black_rook_king_side
+    return black_king, black_pieces
+
+
+def FEN_to_board(ai_game, FEN):
+    """Converts FEN notation to white and black pieces groups"""
+    piece_mapping = {
+        'r': Rook,
+        'n': Knight,
+        'b': Bishop,
+        'q': Queen,
+        'k': King,
+        'p': Pawn,
+        'R': Rook,
+        'N': Knight,
+        'B': Bishop,
+        'Q': Queen,
+        'K': King,
+        'P': Pawn,
+    }
+
+    board_position, active_color, castling_rights = FEN.split()
+
+    white_pieces = Group()
+    black_pieces = Group()
+    row = 0  # Start from the bottom row for white pieces
+    col = 0
+
+    for char in board_position:
+        if char.isdigit():
+            col += int(char)
+        elif char == '/':
+            row += 1
+            col = 0
+        else:
+            piece_class = piece_mapping[char]
+            piece_color = 'w' if char.isupper() else 'b'
+            piece = piece_class(ai_game, (col, row), piece_color)
+            if (piece_color == 'w'):
+                if type(piece) is King:
+                    white_king = piece
+                white_pieces.add(piece)
+            else:
+                if type(piece) is King:
+                    black_king = piece
+                black_pieces.add(piece)
+            col += 1
+    return white_king, white_pieces, black_king, black_pieces

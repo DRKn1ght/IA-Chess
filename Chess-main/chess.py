@@ -2,7 +2,7 @@ import pygame, sys
 
 from pygame.locals import *
 
-from game.piece.new_game import create_white_pieces, create_black_pieces
+from game.piece.new_game import create_white_pieces, create_black_pieces, FEN_to_board
 from settings import Settings
 from results import Results
 from Board.board import Board
@@ -30,16 +30,11 @@ class ChessGame:
 
         self.board = Board(self)
 
-        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
-        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
-
+        
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
-
-        self.game_active = False
+        Board._init_from_FEN(self, "rnbqkbnr/p1pp1p1p/3P4/1p4p1/8/2N1pN2/PPP1PPPP/R1BQKB1R w -")
 
         self.turn = "w"
-        self.active_piece = None
-        self.fifty_movements = 0
         self.positions = {}
 
     def run_game(self):

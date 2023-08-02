@@ -5,7 +5,7 @@ from game.piece.rook import Rook
 from game.piece.knight import Knight
 from game.piece.queen import Queen
 from game.piece.bishop import Bishop
-from game.piece.new_game import create_white_pieces, create_black_pieces
+from game.piece.new_game import create_white_pieces, create_black_pieces, FEN_to_board
 
 class Board:
     """ A class to manage the board """
@@ -75,7 +75,7 @@ class Board:
             fen_row = ""
             for col in range(8):
                 square = (col, row)
-                piece = self.get_piece_at_square(square)
+                piece = Board.get_piece_at_square(self, square)
                 if piece is None:
                     empty_squares += 1
                 else:
@@ -101,7 +101,7 @@ class Board:
         if len(self.black_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
             castling_rights += 'q'
 
-        en_passant_target = self.get_en_passant_target()
+        en_passant_target = Board.get_en_passant_target(self)
 
         fen_notation = f"{fen_position} {active_color} {castling_rights} {en_passant_target}"
         return fen_notation
@@ -130,8 +130,19 @@ class Board:
     
     def _reset_all(self):
         """ Reset all and init a new game """
-        self.white_king, self.white_pieces, self.white_rook_king_side, self.white_rook_queen_side = create_white_pieces(self)
-        self.black_king, self.black_pieces, self.black_rook_king_side, self.black_rook_queen_side = create_black_pieces(self)
+        self.white_king, self.white_pieces = create_white_pieces(self)
+        self.black_king, self.black_pieces = create_black_pieces(self)
+
+        self.turn = "w"
+        self.active_piece = None
+        self.fifty_movements = 0
+        self.positions = {}
+
+        self.game_active = True
+
+    def _init_from_FEN(self, FEN):
+        """ init a new game from FEN """
+        self.white_king, self.white_pieces, self.black_king, self.black_pieces = FEN_to_board(self, FEN)
 
         self.turn = "w"
         self.active_piece = None
