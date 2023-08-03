@@ -7,7 +7,8 @@ TODO:
 Criar pasta GUI e criar arquivo para cada tela  
 - menu.py : Tela inicial
 - draw.py : Tela de empate  
-
-Criar nova função mov(piece, square) em board.py para efetuar movimento de uma peça
+  
+- criar um array para representar o Board
+- Fazer todas as alterações de posição alterarem este array
 
 <!-- apenas arquivos criados, fazer o resto -->
