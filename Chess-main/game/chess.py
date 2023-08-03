@@ -37,7 +37,7 @@ class ChessGame:
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
-        
+        self.chess_ai = Ai(self,depth=2)
         self.board.test()
 
     def run_game(self):
@@ -45,7 +45,7 @@ class ChessGame:
         while True:
             self._check_events()
             self._update_screen()
-
+            self._auto_move()
             self.clock.tick(self.settings.FPS)
 
     def _check_events(self):
@@ -72,10 +72,6 @@ class ChessGame:
         if self.active_piece: 
             if checked_square in self.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
                 self._move(friendly_pieces, enemy_pieces, checked_square)
-                chess_ai = Ai(self,depth=2)
-                initial_pos, move = chess_ai.get_best_move(self.board._get_FEN_position())
-                piece_to_move = self.board.get_piece_at_square(initial_pos)
-                self.board.push((piece_to_move, move))
             else:
                 active_piece = None
                 for piece in friendly_pieces:
@@ -151,6 +147,11 @@ class ChessGame:
 
         self.board.turn = "b" if self.board.turn == "w" else "w"
         print(self.board._get_FEN_position())
+        pmoves = self.board.get_legal_moves()
+        for mov, cap in pmoves:
+            for a, b in cap:
+                if (b):
+                    print(self.board.turn, b)
         self.active_piece = None
 
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
@@ -225,6 +226,15 @@ class ChessGame:
             self.results.update()
 
         pygame.display.update()
+
+    def _auto_move(self):
+        if (self.board.turn == 'b'):
+            friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
+            enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
+            initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position())
+            piece_to_move = self.board.get_piece_at_square(initial_pos)
+            self.active_piece = piece_to_move
+            self._move(friendly_pieces, enemy_pieces, move)
 
 if __name__ == "__main__":
     ai_game = ChessGame()

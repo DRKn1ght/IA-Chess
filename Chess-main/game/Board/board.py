@@ -1,6 +1,7 @@
 import pygame
 import time
 import copy
+from piece.piece import Piece
 from piece.pawn import Pawn
 from piece.king import King
 from piece.rook import Rook
@@ -19,12 +20,22 @@ class Board:
 
         self.white_king, self.white_pieces = create_white_pieces(self)
         self.black_king, self.black_pieces = create_black_pieces(self)
-
+        self.board_arr: list[[Piece]] = [
+             [Rook(ai_game, (0, 0), 'b'),   Pawn(ai_game, (0, 1), 'b'), None, None, None, None, Pawn(ai_game, (0, 6), 'w'), Rook(ai_game, (0, 7), 'w')],
+             [Knight(ai_game, (1, 0), 'b'), Pawn(ai_game, (1, 1), 'b'), None, None, None, None, Pawn(ai_game, (1, 6), 'w'), Knight(ai_game, (1, 7), 'w')],
+             [Bishop(ai_game, (2, 0), 'b'), Pawn(ai_game, (2, 1), 'b'), None, None, None, None, Pawn(ai_game, (2, 6), 'w'), Bishop(ai_game, (2, 7), 'w')],
+             [Queen(ai_game, (3, 0), 'b'),  Pawn(ai_game, (3, 1), 'b'), None, None, None, None, Pawn(ai_game, (3, 6), 'w'), Queen(ai_game, (3, 7), 'w')],
+             [self.black_king,              Pawn(ai_game, (4, 1), 'b'), None, None, None, None, Pawn(ai_game, (4, 6), 'w'), self.white_king],
+             [Bishop(ai_game, (5, 0), 'b'), Pawn(ai_game, (5, 1), 'b'), None, None, None, None, Pawn(ai_game, (5, 6), 'w'), Bishop(ai_game, (5, 7), 'w')],
+             [Knight(ai_game, (6, 0), 'b'), Pawn(ai_game, (6, 1), 'b'), None, None, None, None, Pawn(ai_game, (6, 6), 'w'), Knight(ai_game, (6, 7), 'w')],
+             [Rook(ai_game, (7, 0), 'b'),   Pawn(ai_game, (7, 1), 'b'), None, None, None, None, Pawn(ai_game, (7, 6), 'w'), Rook(ai_game, (7, 7), 'w')]
+            ]
         self.fifty_movements = 0
         self.positions = {}
         self.board_stack = []
         self.game_active = True
         self.turn = 'w'
+        self.last_move = []
 
     def _get_position(self):
         """ Return a string representing the position """
@@ -162,20 +173,8 @@ class Board:
 
     def fake_push(self, move):
         piece, square = move
-
-        # Store the current board state into the stack
-        current_board_state = {
-            'white_king': self.white_king,
-            'white_pieces': copy.deepcopy(self.white_pieces),
-            'black_king': self.black_king,
-            'black_pieces': copy.deepcopy(self.black_pieces),
-            'turn': self.turn
-        }
-        self.board_stack.append(current_board_state)
-
-        # Update the piece's position
+        self.last_move.append((piece, copy.deepcopy(square)))
         piece.movement(square)
-
         # Update the turn
         self.turn = 'b' if self.turn == 'w' else 'w'
 
@@ -185,21 +184,17 @@ class Board:
             self._init_from_FEN(fen_position)
 
     def fake_pop(self):
-        if len(self.board_stack) > 0:
-            # Restore the last board state from the stack
-            previous_board_state = self.board_stack.pop()
-            self.white_king = previous_board_state['white_king']
-            self.white_pieces = previous_board_state['white_pieces']
-            self.black_king = previous_board_state['black_king']
-            self.black_pieces = previous_board_state['black_pieces']
-            self.turn = previous_board_state['turn']
+        if len(self.last_move) > 0:
+            old_piece, old_move = self.last_move.pop()
+            old_piece.movement(old_move)
+            self.turn = 'b' if self.turn == 'w' else 'w'
 
     def get_legal_moves(self):
         friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
         king = self.white_king if self.turn == "w" else self.black_king
         legal_moves = []
         for piece in friendly_pieces:
-            moves = piece.possible_movements(self.white_pieces, self.black_pieces, king)
-            if len(moves) > 0:
-                legal_moves.append((piece, moves))
+            possible_captures = piece.possible_captures(self.white_pieces, self.black_pieces, king)
+            if len(possible_captures) > 0:
+                legal_moves.append((piece, possible_captures))
         return legal_moves

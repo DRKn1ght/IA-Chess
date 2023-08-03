@@ -46,10 +46,35 @@ class Piece(Sprite):
                 enemy_pieces.remove(capture)
 
             if not king.check(white_pieces, black_pieces):
-                possible_movements.append(movement)
+                if movement[0] > 0 and movement[0] < 8 and movement[1] > 0 and movement[1] < 8:
+                    possible_movements.append(movement)
 
             if capture:
                 enemy_pieces.add(capture)
+            self.movement(real_square)
+
+        return possible_movements
+
+    def possible_captures(self, white_pieces, black_pieces, king):
+        """ Return the possible movements of the piece """
+        real_square = self.square
+        enemy_pieces = white_pieces if self.color == "b" else black_pieces
+        possible_movements = []
+        for movement in self.theoretical_movements(white_pieces, black_pieces):
+            self.movement(movement)
+
+            # If there are a capture delete the piece temporarily
+            capture = pygame.sprite.spritecollideany(self, enemy_pieces)
+            if capture:
+                enemy_pieces.remove(capture)
+
+            if not king.check(white_pieces, black_pieces):
+                if movement[0] > 0 and movement[0] < 8 and movement[1] > 0 and movement[1] < 8 and not capture:
+                    possible_movements.append((movement, None))
+
+            if capture:
+                enemy_pieces.add(capture)
+                possible_movements.append((movement, capture))
             self.movement(real_square)
 
         return possible_movements

@@ -7,10 +7,20 @@ from piece.knight import Knight
 from piece.queen import Queen
 from piece.rook import Rook
 
+
 class Ai:
     def __init__(self, ai_game, depth):
         self.depth = depth
         self.ai_game = ai_game
+        self.piece_values = {
+            Pawn: 1,
+            Knight: 3,
+            Bishop: 3,
+            Rook: 5,
+            Queen: 9,
+            King: 100,
+        }
+
 
     def minimax_alpha_beta(self, board, depth, alpha, beta, maximizing_player):
         if depth == 0 or board.game_active == False:
@@ -21,9 +31,12 @@ class Ai:
         if maximizing_player:
             max_eval = float('-inf')
             for piece, possible_moves in legal_moves:
-                for move in possible_moves:
+                for move, capture in possible_moves:
                     board.fake_push((piece, move))
                     eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, False)
+                    if capture:
+                        print(capture.name)
+                        eval += self.piece_values[type(capture)]
                     board.fake_pop()
                     max_eval = max(max_eval, eval)
                     alpha = max(alpha, eval)
@@ -33,9 +46,12 @@ class Ai:
         else:
             min_eval = float('inf')
             for piece, possible_moves in legal_moves:
-                for move in possible_moves:
+                for move, capture in possible_moves:
                     board.fake_push((piece, move))
                     eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, True)
+                    if capture:
+                        #print(capture.name)
+                        eval -= self.piece_values[type(capture)]
                     board.fake_pop()
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
@@ -55,9 +71,12 @@ class Ai:
             initial_positions.append((piece, piece.square))
 
         for piece, possible_moves in legal_moves:
-            for move in possible_moves:
+            for move, capture in possible_moves:
                 board.fake_push((piece, move))
                 eval = self.minimax_alpha_beta(board, self.depth - 1, float('-inf'), float('inf'), False)
+                if capture:
+                    #print(capture.name)
+                    eval += self.piece_values[type(capture)]
                 board.fake_pop()
                 if eval > max_eval:
                     max_eval = eval
@@ -67,24 +86,13 @@ class Ai:
             if (piece == best_piece):
                 initial_pos = pos
                 break
-        print(initial_pos, best_move[1])
         return initial_pos, best_move[1]
 
     def evaluate_board(self, board):
         # Implement a board evaluation function here to assign a score to a given board state.
         # The higher the score, the better the board for the AI.
         # You can use a simple material-based evaluation or a more complex evaluation function.
-
         # Sample material-based evaluation function:
-        # piece_values = {
-        #     Pawn: 1,
-        #     Knight: 3,
-        #     Bishop: 3,
-        #     Rook: 5,
-        #     Queen: 9,
-        #     King: 100,
-        # }
-
         score = 0
         piece_table = {
             Queen: np.array([
@@ -154,8 +162,11 @@ class Ai:
             ])
             
         }
+
         for piece in board.black_pieces:
             score += piece_table[type(piece)][piece.square[0], piece.square[1]]
+            score += self.piece_values[type(piece)]
         for piece in board.white_pieces:
             score -= piece_table[type(piece)][piece.square[0], piece.square[1]]
+            score -= self.piece_values[type(piece)]
         return score
