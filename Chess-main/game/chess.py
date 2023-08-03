@@ -7,6 +7,7 @@ from results import Results
 from Board.board import Board
 from piece.pawn import Pawn
 from piece.king import King
+from AI.ai import Ai
 
 class ChessGame:
     """ A class to manage the game """
@@ -14,11 +15,18 @@ class ChessGame:
     def __init__(self):
         """ Create a new game instance """
         pygame.init()
-
         self.settings = Settings()
         
         self.screen = pygame.display.set_mode(self.settings.screen_size)
         pygame.display.set_caption("Chess Game")
+        self.square_size = self.settings.square_size
+
+        self.array = []
+        for i in range(8):
+            if i%2:
+                self.array.append([1 if j%2 else 0 for j in range(8)])
+            else:
+                self.array.append([0 if j%2 else 1 for j in range(8)])
 
         self.results = Results(self)
         self.clock = pygame.time.Clock()
@@ -29,6 +37,8 @@ class ChessGame:
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
+        
+        self.board.test()
 
     def run_game(self):
         """ Init the game loop """
@@ -137,7 +147,9 @@ class ChessGame:
             self.board.positions[actual_position] = 1
 
         self.board.turn = "b" if self.board.turn == "w" else "w"
-        print(Board._get_FEN_position(self.board))
+        print(self.board._get_FEN_position())
+        chess_ai = Ai(self,depth=3)
+        chess_ai.get_best_move(self.board._get_FEN_position())
         self.active_piece = None
 
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
@@ -188,13 +200,20 @@ class ChessGame:
             pygame.draw.circle(self.screen, self.settings.movement_color, ((movement[0]+0.5)*self.settings.square_size, 
                               (movement[1]+0.5)*self.settings.square_size), self.settings.square_size//3)
 
+    def update(self):
+        """ Draw the board on the screen """
+        for i in range(8):
+            for j in range(8):
+                pygame.draw.rect(self.screen, 
+                                 self.settings.light_color if self.array[i][j] else self.settings.dark_color, 
+                                 (i*self.square_size, j*self.square_size, self.square_size, self.square_size))
 
     def _update_screen(self):
         """ Show the screen """
         self.screen.fill((0,0,0))
 
         if self.board.game_active:
-            self.board.update()
+            self.update()
 
             if self.active_piece:
                 self._draw_possible_movements()

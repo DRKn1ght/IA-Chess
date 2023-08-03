@@ -1,4 +1,5 @@
 import pygame
+import time
 from piece.pawn import Pawn
 from piece.king import King
 from piece.rook import Rook
@@ -15,32 +16,14 @@ class Board:
         self.screen = ai_game.screen
         self.settings = ai_game.settings
 
-        self.square_size = self.settings.square_size
-
-        self.array = []
-
         self.white_king, self.white_pieces = create_white_pieces(self)
         self.black_king, self.black_pieces = create_black_pieces(self)
 
         self.fifty_movements = 0
         self.positions = {}
-
+        self.board_stack = []
         self.game_active = True
         self.turn = 'w'
-
-        for i in range(8):
-            if i%2:
-                self.array.append([1 if j%2 else 0 for j in range(8)])
-            else:
-                self.array.append([0 if j%2 else 1 for j in range(8)])
-
-    def update(self):
-        """ Draw the board on the screen """
-        for i in range(8):
-            for j in range(8):
-                pygame.draw.rect(self.screen, 
-                                 self.settings.light_color if self.array[i][j] else self.settings.dark_color, 
-                                 (i*self.square_size, j*self.square_size, self.square_size, self.square_size))
 
     def _get_position(self):
         """ Return a string representing the position """
@@ -113,7 +96,7 @@ class Board:
 
         en_passant_target = Board.get_en_passant_target(self)
 
-        fen_notation = f"{fen_position} {active_color} {castling_rights} {en_passant_target}"
+        fen_notation = f"{fen_position} {active_color} {en_passant_target}"
         return fen_notation
 
     def get_piece_at_square(self, square):
@@ -161,5 +144,30 @@ class Board:
 
         self.game_active = True
 
-    def mov(self, piece, square):
-        pass
+    def test(self):
+        legal_moves = self.get_legal_moves()
+        first = (legal_moves[0][0], legal_moves[0][1][0])
+        print(first)
+        #self.push(first)
+        #self.black_king.movement((3, 5))
+
+
+    def push(self, move):
+        piece, square = move
+        self.board_stack.append(self._get_FEN_position())
+
+        piece.movement(square)
+        self.turn = 'b' if self.turn == 'w' else 'w'
+
+    def pop(self):
+        if (len(self.board_stack > 0)):
+            fen_position = self.board_stack.pop()
+            self._init_from_FEN(fen_position)
+
+    def get_legal_moves(self):
+        friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
+        king = self.white_king if self.turn == "w" else self.black_king
+        legal_moves = []
+        for piece in friendly_pieces:
+            legal_moves.append((piece, piece.possible_movements(self.white_pieces, self.black_pieces, king)))
+        return legal_moves
