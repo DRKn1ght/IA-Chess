@@ -173,7 +173,7 @@ class Board:
 
     def fake_push(self, move):
         piece, square = move
-        self.last_move.append((piece, copy.deepcopy(square)))
+        self.last_move.append((piece, square))
         piece.movement(square)
         # Update the turn
         self.turn = 'b' if self.turn == 'w' else 'w'

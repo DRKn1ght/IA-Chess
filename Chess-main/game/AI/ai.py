@@ -13,11 +13,11 @@ class Ai:
         self.depth = depth
         self.ai_game = ai_game
         self.piece_values = {
-            Pawn: 1,
-            Knight: 3,
-            Bishop: 3,
-            Rook: 5,
-            Queen: 9,
+            Pawn: 3,
+            Knight: 15,
+            Bishop: 15,
+            Rook: 20,
+            Queen: 40,
             King: 100,
         }
 
@@ -34,9 +34,6 @@ class Ai:
                 for move, capture in possible_moves:
                     board.fake_push((piece, move))
                     eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, False)
-                    if capture:
-                        print(capture.name)
-                        eval += self.piece_values[type(capture)]
                     board.fake_pop()
                     max_eval = max(max_eval, eval)
                     alpha = max(alpha, eval)
@@ -49,9 +46,6 @@ class Ai:
                 for move, capture in possible_moves:
                     board.fake_push((piece, move))
                     eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, True)
-                    if capture:
-                        #print(capture.name)
-                        eval -= self.piece_values[type(capture)]
                     board.fake_pop()
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
@@ -169,4 +163,5 @@ class Ai:
         for piece in board.white_pieces:
             score -= piece_table[type(piece)][piece.square[0], piece.square[1]]
             score -= self.piece_values[type(piece)]
+        #print("score", score)
         return score

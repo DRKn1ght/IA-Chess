@@ -46,7 +46,7 @@ class Piece(Sprite):
                 enemy_pieces.remove(capture)
 
             if not king.check(white_pieces, black_pieces):
-                if movement[0] > 0 and movement[0] < 8 and movement[1] > 0 and movement[1] < 8:
+                if movement[0] >= 0 and movement[0] < 8 and movement[1] >= 0 and movement[1] < 8:
                     possible_movements.append(movement)
 
             if capture:
@@ -74,7 +74,8 @@ class Piece(Sprite):
 
             if capture:
                 enemy_pieces.add(capture)
-                possible_movements.append((movement, capture))
+                if not king.check(white_pieces, black_pieces):
+                    possible_movements.append((movement, capture))
             self.movement(real_square)
 
         return possible_movements
