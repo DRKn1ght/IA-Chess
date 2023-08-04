@@ -1,4 +1,3 @@
-from Board.board import Board
 import numpy as np
 from piece.pawn import Pawn
 from piece.king import King
@@ -9,82 +8,87 @@ from piece.rook import Rook
 
 
 class Ai:
-    def __init__(self, ai_game, depth):
+    def __init__(self, ai_game, board, depth):
         self.depth = depth
+        self.board = board
         self.ai_game = ai_game
         self.piece_values = {
-            Pawn: 3,
-            Knight: 15,
-            Bishop: 15,
-            Rook: 20,
-            Queen: 40,
-            King: 100,
+            Pawn: 10,
+            Knight: 30,
+            Bishop: 30,
+            Rook: 50,
+            Queen: 90,
+            King: 1000,
         }
 
 
     def minimax_alpha_beta(self, board, depth, alpha, beta, maximizing_player):
-        if depth == 0 or board.game_active == False:
-            return self.evaluate_board(board)
+        if depth == 0 or self.board.game_active == False:
+            return self.evaluate_board(self.board)
 
-        legal_moves = board.get_legal_moves()
 
         if maximizing_player:
+            legal_moves = self.board.get_specific_legal_moves('b')
             max_eval = float('-inf')
             for piece, possible_moves in legal_moves:
                 for move, capture in possible_moves:
-                    board.fake_push((piece, move))
-                    eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, False)
-                    board.fake_pop()
+                    self.board.fake_push((piece, move), capture)
+                    eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, False)
                     max_eval = max(max_eval, eval)
                     alpha = max(alpha, eval)
+                    self.board.fake_pop()
                     if beta <= alpha:
-                        break
+                        return max_eval
             return max_eval
         else:
             min_eval = float('inf')
+            legal_moves = self.board.get_specific_legal_moves('w')
             for piece, possible_moves in legal_moves:
                 for move, capture in possible_moves:
-                    board.fake_push((piece, move))
-                    eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, True)
-                    board.fake_pop()
+                    if (capture):
+                        print("piece: ", piece.name, "move: ", move)
+                    self.board.fake_push((piece, move), capture)
+                    eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, True)
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
+                    self.board.fake_pop()
                     if beta <= alpha:
-                        break
+                        return min_eval
             return min_eval
 
     def get_best_move(self, fen):
-        board = Board(self.ai_game)
-        board._init_from_FEN(fen)
-        board.turn = 'b'
+        #self.board = self.board(self.ai_game)
+        #self.board._init_from_FEN(fen)
+        #self.board.turn = 'b'
         best_move = None
         max_eval = float('-inf')
-        legal_moves = board.get_legal_moves()
+        legal_moves = self.board.get_specific_legal_moves('b')
         initial_positions = []
         for piece, possible_moves in legal_moves:
             initial_positions.append((piece, piece.square))
-
+        print(self.evaluate_board(self.board))
         for piece, possible_moves in legal_moves:
             for move, capture in possible_moves:
-                board.fake_push((piece, move))
-                eval = self.minimax_alpha_beta(board, self.depth - 1, float('-inf'), float('inf'), False)
-                if capture:
-                    #print(capture.name)
-                    eval += self.piece_values[type(capture)]
-                board.fake_pop()
+                old_pos = piece.square
+                self.board.fake_push((piece, move), capture)
+                eval = self.minimax_alpha_beta(self.board, self.depth - 1, float('-inf'), float('inf'), False)
                 if eval > max_eval:
                     max_eval = eval
+                    # print("move: ", move)
+                    # print("score: ", max_eval)
                     best_move = (piece, move)
+                self.board.fake_pop()
         for piece, pos in initial_positions:
             best_piece, move = best_move
             if (piece == best_piece):
                 initial_pos = pos
                 break
+        print("best: ", max_eval, best_move[1])
         return initial_pos, best_move[1]
 
     def evaluate_board(self, board):
-        # Implement a board evaluation function here to assign a score to a given board state.
-        # The higher the score, the better the board for the AI.
+        # Implement a self.board evaluation function here to assign a score to a given self.board state.
+        # The higher the score, the better the self.board for the AI.
         # You can use a simple material-based evaluation or a more complex evaluation function.
         # Sample material-based evaluation function:
         score = 0
@@ -156,12 +160,15 @@ class Ai:
             ])
             
         }
-
-        for piece in board.black_pieces:
-            score += piece_table[type(piece)][piece.square[0], piece.square[1]]
-            score += self.piece_values[type(piece)]
-        for piece in board.white_pieces:
-            score -= piece_table[type(piece)][piece.square[0], piece.square[1]]
-            score -= self.piece_values[type(piece)]
+        all_pieces = self.board.black_pieces.sprites() + self.board.white_pieces.sprites()
+        for piece in all_pieces:
+            if self.board.turn == 'b':
+                score += piece_table[type(piece)][piece.square[0], piece.square[1]]
+            else:
+                score += np.flip(piece_table[type(piece)])[piece.square[0], piece.square[1]] * (-1)
+            if piece.color == 'w':
+                score += self.piece_values[type(piece)] * -1
+            else:
+                score += self.piece_values[type(piece)]
         #print("score", score)
         return score

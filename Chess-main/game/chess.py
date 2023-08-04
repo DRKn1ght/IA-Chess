@@ -37,7 +37,7 @@ class ChessGame:
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
-        self.chess_ai = Ai(self,depth=2)
+        self.chess_ai = Ai(self, self.board, depth=2)
         self.board.test()
 
     def run_game(self):
@@ -235,6 +235,10 @@ class ChessGame:
             piece_to_move = self.board.get_piece_at_square(initial_pos)
             self.active_piece = piece_to_move
             self._move(friendly_pieces, enemy_pieces, move)
+            # self.board.fake_push((friendly_pieces.sprites()[0], (0, 2)))
+            # print(friendly_pieces.sprites()[0].name, friendly_pieces.sprites()[0].square)
+            # self.board.fake_pop()
+            # self.board.turn = 'w'
 
 if __name__ == "__main__":
     ai_game = ChessGame()

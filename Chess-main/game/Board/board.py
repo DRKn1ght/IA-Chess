@@ -171,12 +171,16 @@ class Board:
         piece.movement(square)
         self.turn = 'b' if self.turn == 'w' else 'w'
 
-    def fake_push(self, move):
+    def fake_push(self, move, capture = None):
         piece, square = move
-        self.last_move.append((piece, square))
+        new_move = (piece, piece.square)
         piece.movement(square)
+        if capture is not None:
+            enemy_pieces = self.white_pieces if capture.color == 'w' else self.black_pieces
+            enemy_pieces.remove(capture)
+        self.last_move.append((new_move, capture))
         # Update the turn
-        self.turn = 'b' if self.turn == 'w' else 'w'
+
 
     def pop(self):
         if len(self.board_stack) > 0:
@@ -185,13 +189,27 @@ class Board:
 
     def fake_pop(self):
         if len(self.last_move) > 0:
-            old_piece, old_move = self.last_move.pop()
+            #print(self.last_move)
+            old_state = self.last_move.pop()
+            old_piece, old_move = old_state[0]
+            if old_state[1]:
+                enemy_pieces = self.white_pieces if old_state[1].color == 'w' else self.black_pieces
+                enemy_pieces.add(old_state[1])
             old_piece.movement(old_move)
-            self.turn = 'b' if self.turn == 'w' else 'w'
 
     def get_legal_moves(self):
         friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
         king = self.white_king if self.turn == "w" else self.black_king
+        legal_moves = []
+        for piece in friendly_pieces:
+            possible_captures = piece.possible_captures(self.white_pieces, self.black_pieces, king)
+            if len(possible_captures) > 0:
+                legal_moves.append((piece, possible_captures))
+        return legal_moves
+    
+    def get_specific_legal_moves(self, color):
+        friendly_pieces = self.white_pieces if color == 'w' else self.black_pieces
+        king = self.white_king if color == 'w' else self.black_king
         legal_moves = []
         for piece in friendly_pieces:
             possible_captures = piece.possible_captures(self.white_pieces, self.black_pieces, king)
