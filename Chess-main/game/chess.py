@@ -35,7 +35,7 @@ class ChessGame:
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
-        self.chess_ai = Ai(self, self.board, depth=3)
+        self.chess_ai = Ai(self, self.board, depth=2)
         self.board.test()
 
     def run_game(self):

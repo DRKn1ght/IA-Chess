@@ -31,8 +31,8 @@ class Ai:
             legal_moves = self.board.get_specific_legal_moves('b')
             max_eval = float('-inf')
             for piece, possible_moves in legal_moves:
-                for move, capture in possible_moves:
-                    self.board.fake_push((piece, move), capture)
+                for move in possible_moves:
+                    self.board.fake_push((piece, move))
                     eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, False)
                     max_eval = max(max_eval, eval)
                     alpha = max(alpha, eval)
@@ -44,8 +44,8 @@ class Ai:
             min_eval = float('inf')
             legal_moves = self.board.get_specific_legal_moves('w')
             for piece, possible_moves in legal_moves:
-                for move, capture in possible_moves:
-                    self.board.fake_push((piece, move), capture)
+                for move in possible_moves:
+                    self.board.fake_push((piece, move))
                     eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, True)
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
@@ -66,9 +66,8 @@ class Ai:
             initial_positions.append((piece, piece.square))
         print(self.evaluate_board(self.board))
         for piece, possible_moves in legal_moves:
-            for move, capture in possible_moves:
-                old_pos = piece.square
-                self.board.fake_push((piece, move), capture)
+            for move in possible_moves:
+                self.board.fake_push((piece, move))
                 eval = self.minimax_alpha_beta(self.board, self.depth - 1, float('-inf'), float('inf'), False)
                 if eval > max_eval:
                     max_eval = eval
@@ -125,7 +124,7 @@ class Ai:
             ]),
 
             Rook: np.array([
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                 [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],

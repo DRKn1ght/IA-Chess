@@ -74,11 +74,11 @@ class Piece(Sprite):
                 enemy_pieces.remove(capture)
 
             if not king.check(white_pieces, black_pieces):
-                    possible_movements.append((movement, None))
+                    possible_movements.append(movement)
 
             if capture:
                 enemy_pieces.add(capture)
-                possible_movements.append((movement, capture))
+                possible_movements.append(movement)
             self.movement(real_square)
             self.ai_game.square[movement] = capture
 

@@ -157,10 +157,10 @@ class Board:
         piece.movement(square)
         self.turn = 'b' if self.turn == 'w' else 'w'
 
-    def fake_push(self, move, capture = None):
+    def fake_push(self, move):
         piece, square = move
         new_move = (piece, piece.square)
-        piece.movement(square)
+        capture = piece.movement(square)
         if capture is not None:
             enemy_pieces = self.white_pieces if capture.color == 'w' else self.black_pieces
             enemy_pieces.remove(capture)
