@@ -1,7 +1,4 @@
-import pygame
-import time
-import copy
-from piece.piece import Piece
+import numpy as np
 from piece.pawn import Pawn
 from piece.king import King
 from piece.rook import Rook
@@ -17,19 +14,9 @@ class Board:
         """ Create a new board """
         self.screen = ai_game.screen
         self.settings = ai_game.settings
-
+        self.square = np.full((8, 8), None, dtype = object)
         self.white_king, self.white_pieces = create_white_pieces(self)
         self.black_king, self.black_pieces = create_black_pieces(self)
-        self.board_arr: list[[Piece]] = [
-             [Rook(ai_game, (0, 0), 'b'),   Pawn(ai_game, (0, 1), 'b'), None, None, None, None, Pawn(ai_game, (0, 6), 'w'), Rook(ai_game, (0, 7), 'w')],
-             [Knight(ai_game, (1, 0), 'b'), Pawn(ai_game, (1, 1), 'b'), None, None, None, None, Pawn(ai_game, (1, 6), 'w'), Knight(ai_game, (1, 7), 'w')],
-             [Bishop(ai_game, (2, 0), 'b'), Pawn(ai_game, (2, 1), 'b'), None, None, None, None, Pawn(ai_game, (2, 6), 'w'), Bishop(ai_game, (2, 7), 'w')],
-             [Queen(ai_game, (3, 0), 'b'),  Pawn(ai_game, (3, 1), 'b'), None, None, None, None, Pawn(ai_game, (3, 6), 'w'), Queen(ai_game, (3, 7), 'w')],
-             [self.black_king,              Pawn(ai_game, (4, 1), 'b'), None, None, None, None, Pawn(ai_game, (4, 6), 'w'), self.white_king],
-             [Bishop(ai_game, (5, 0), 'b'), Pawn(ai_game, (5, 1), 'b'), None, None, None, None, Pawn(ai_game, (5, 6), 'w'), Bishop(ai_game, (5, 7), 'w')],
-             [Knight(ai_game, (6, 0), 'b'), Pawn(ai_game, (6, 1), 'b'), None, None, None, None, Pawn(ai_game, (6, 6), 'w'), Knight(ai_game, (6, 7), 'w')],
-             [Rook(ai_game, (7, 0), 'b'),   Pawn(ai_game, (7, 1), 'b'), None, None, None, None, Pawn(ai_game, (7, 6), 'w'), Rook(ai_game, (7, 7), 'w')]
-            ]
         self.fifty_movements = 0
         self.positions = {}
         self.board_stack = []
@@ -112,10 +99,9 @@ class Board:
         return fen_notation
 
     def get_piece_at_square(self, square):
-        all_pieces = self.white_pieces.sprites() + self.black_pieces.sprites()
-        for piece in all_pieces:
-            if (piece.square == square):
-                return piece
+        piece = self.square[square]
+        if(piece):
+            return piece
         return None
     
     def get_en_passant_target(self):
@@ -192,10 +178,11 @@ class Board:
             #print(self.last_move)
             old_state = self.last_move.pop()
             old_piece, old_move = old_state[0]
+            old_piece.movement(old_move)
             if old_state[1]:
                 enemy_pieces = self.white_pieces if old_state[1].color == 'w' else self.black_pieces
                 enemy_pieces.add(old_state[1])
-            old_piece.movement(old_move)
+                self.square[old_state[1].square] = old_state[1]
 
     def get_legal_moves(self):
         friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
@@ -216,3 +203,12 @@ class Board:
             if len(possible_captures) > 0:
                 legal_moves.append((piece, possible_captures))
         return legal_moves
+    
+    def print_board(self):
+        for i in range(8):
+                for j in range(8):
+                        if (self.square[j][i]):
+                            print(self.square[j][i].color, end=" ")
+                        else:
+                            print(" ", end=" ")
+                print()

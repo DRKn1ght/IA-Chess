@@ -12,15 +12,26 @@ def create_white_pieces(ai_game):
     white_pieces = Group()
 
     for i in range(8):
-        white_pieces.add(Pawn(ai_game, (i,6), "w"))
+        pawn = Pawn(ai_game, (i,6), "w")
+        white_pieces.add(pawn)
+        ai_game.square[i][6] = pawn
 
     for i in range(2):
-        white_pieces.add(Rook(ai_game, (7*i,7), "w"))
-        white_pieces.add(Knight(ai_game, (5*i+1,7), "w"))
-        white_pieces.add(Bishop(ai_game, (3*i+2,7), "w"))
-    white_pieces.add(Queen(ai_game, (3,7), "w"))
+        rook = Rook(ai_game, (7*i,7), "w")
+        knight = Knight(ai_game, (5*i+1,7), "w")
+        bishop = Bishop(ai_game, (3*i+2,7), "w")
+        white_pieces.add(rook)
+        white_pieces.add(knight)
+        white_pieces.add(bishop)
+        ai_game.square[7*i][7] = rook
+        ai_game.square[5*1+1][7] = knight
+        ai_game.square[3*i+2][7] = bishop
+    queen = Queen(ai_game, (3,7), "w")
+    white_pieces.add(queen)
     white_king = King(ai_game, (4,7), "w")
-    white_pieces.add(white_king)    
+    white_pieces.add(white_king)
+    ai_game.square[3][7] = queen
+    ai_game.square[4][7] = white_king
 
     return white_king, white_pieces
 
@@ -30,15 +41,26 @@ def create_black_pieces(ai_game):
     black_pieces = Group()
 
     for i in range(8):
-        black_pieces.add(Pawn(ai_game, (i,1), "b"))
+        pawn = Pawn(ai_game, (i,1), "b")
+        black_pieces.add(pawn)
+        ai_game.square[i][1] = pawn
 
     for i in range(2):
-        black_pieces.add(Rook(ai_game, (7*i,0), "b"))
-        black_pieces.add(Knight(ai_game, (5*i+1,0), "b"))
-        black_pieces.add(Bishop(ai_game, (3*i+2,0), "b"))
-    black_pieces.add(Queen(ai_game, (3,0), "b"))
+        rook = Rook(ai_game, (7*i,0), "b")
+        knight = Knight(ai_game, (5*i+1,0), "b")
+        bishop = Bishop(ai_game, (3*i+2,0), "b")
+        black_pieces.add(rook)
+        black_pieces.add(knight)
+        black_pieces.add(bishop)
+        ai_game.square[7*i][0] = rook
+        ai_game.square[5*1+1][0] = knight
+        ai_game.square[3*i+2][0] = bishop
+    queen = Queen(ai_game, (3,0), "b")
+    black_pieces.add(queen)
     black_king = King(ai_game, (4,0), "b")
-    black_pieces.add(black_king)    
+    black_pieces.add(black_king)
+    ai_game.square[3][0] = queen
+    ai_game.square[4][0] = black_king   
 
     return black_king, black_pieces
 

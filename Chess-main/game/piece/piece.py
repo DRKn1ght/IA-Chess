@@ -24,9 +24,15 @@ class Piece(Sprite):
 
     def movement(self, destination_square):
         """ Move the piece """
+        capture = self.ai_game.get_piece_at_square(destination_square)
+        old_x, old_y = self.square
+        new_x, new_y = destination_square
         self.rect.topleft = (destination_square[0] * self.settings.square_size,
                              destination_square[1] * self.settings.square_size) 
+        self.ai_game.square[old_x][old_y] = None
+        self.ai_game.square[new_x][new_y] = self
         self.square = destination_square
+        return capture
 
     def theoretical_movements(self, white_pieces, black_pieces):
         """ Return the theoretical movements of the piece """
@@ -38,10 +44,9 @@ class Piece(Sprite):
         enemy_pieces = white_pieces if self.color == "b" else black_pieces
         possible_movements = []
         for movement in self.theoretical_movements(white_pieces, black_pieces):
-            self.movement(movement)
+            capture = self.movement(movement)
 
             # If there are a capture delete the piece temporarily
-            capture = pygame.sprite.spritecollideany(self, enemy_pieces)
             if capture:
                 enemy_pieces.remove(capture)
 
@@ -52,6 +57,7 @@ class Piece(Sprite):
             if capture:
                 enemy_pieces.add(capture)
             self.movement(real_square)
+            self.ai_game.square[movement] = capture
 
         return possible_movements
 
@@ -61,10 +67,9 @@ class Piece(Sprite):
         enemy_pieces = white_pieces if self.color == "b" else black_pieces
         possible_movements = []
         for movement in self.theoretical_movements(white_pieces, black_pieces):
-            self.movement(movement)
+            capture = self.movement(movement)
 
             # If there are a capture delete the piece temporarily
-            capture = pygame.sprite.spritecollideany(self, enemy_pieces)
             if capture:
                 enemy_pieces.remove(capture)
 
@@ -75,5 +80,6 @@ class Piece(Sprite):
                 enemy_pieces.add(capture)
                 possible_movements.append((movement, capture))
             self.movement(real_square)
+            self.ai_game.square[movement] = capture
 
         return possible_movements

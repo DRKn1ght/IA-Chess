@@ -20,7 +20,7 @@ class ChessGame:
         self.screen = pygame.display.set_mode(self.settings.screen_size)
         pygame.display.set_caption("Chess Game")
         self.square_size = self.settings.square_size
-
+        self.board = Board(self)
         self.array = []
         for i in range(8):
             if i%2:
@@ -31,13 +31,11 @@ class ChessGame:
         self.results = Results(self)
         self.clock = pygame.time.Clock()
 
-        self.board = Board(self)
-
         self.board._reset_all()
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
-        self.chess_ai = Ai(self, self.board, depth=2)
+        self.chess_ai = Ai(self, self.board, depth=3)
         self.board.test()
 
     def run_game(self):
@@ -235,6 +233,7 @@ class ChessGame:
             piece_to_move = self.board.get_piece_at_square(initial_pos)
             self.active_piece = piece_to_move
             self._move(friendly_pieces, enemy_pieces, move)
+            self.board.print_board()
             # self.board.fake_push((friendly_pieces.sprites()[0], (0, 2)))
             # print(friendly_pieces.sprites()[0].name, friendly_pieces.sprites()[0].square)
             # self.board.fake_pop()

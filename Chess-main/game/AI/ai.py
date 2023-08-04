@@ -45,8 +45,6 @@ class Ai:
             legal_moves = self.board.get_specific_legal_moves('w')
             for piece, possible_moves in legal_moves:
                 for move, capture in possible_moves:
-                    if (capture):
-                        print("piece: ", piece.name, "move: ", move)
                     self.board.fake_push((piece, move), capture)
                     eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, True)
                     min_eval = min(min_eval, eval)
