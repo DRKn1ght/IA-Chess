@@ -56,6 +56,7 @@ class Piece(Sprite):
 
             if capture:
                 enemy_pieces.add(capture)
+                possible_movements.append(movement)
             self.movement(real_square)
             self.ai_game.square[movement] = capture
 

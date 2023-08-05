@@ -64,15 +64,13 @@ class Ai:
         initial_positions = []
         for piece, possible_moves in legal_moves:
             initial_positions.append((piece, piece.square))
-        print(self.evaluate_board(self.board))
         for piece, possible_moves in legal_moves:
+            old_pos = piece.square
             for move in possible_moves:
                 self.board.fake_push((piece, move))
                 eval = self.minimax_alpha_beta(self.board, self.depth - 1, float('-inf'), float('inf'), False)
                 if eval > max_eval:
                     max_eval = eval
-                    # print("move: ", move)
-                    # print("score: ", max_eval)
                     best_move = (piece, move)
                 self.board.fake_pop()
         for piece, pos in initial_positions:
@@ -124,14 +122,14 @@ class Ai:
             ]),
 
             Rook: np.array([
-                [0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, -1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0],
                 [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-                [0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0]
+                [0.0, -1.0, 0.0, 0.5, 0.5, 0.0, -1.0, 0.0]
             ]),
 
             Pawn: np.array([

@@ -199,7 +199,7 @@ class Board:
         king = self.white_king if color == 'w' else self.black_king
         legal_moves = []
         for piece in friendly_pieces:
-            possible_captures = piece.possible_captures(self.white_pieces, self.black_pieces, king)
+            possible_captures = piece.possible_movements(self.white_pieces, self.black_pieces, king)
             if len(possible_captures) > 0:
                 legal_moves.append((piece, possible_captures))
         return legal_moves
