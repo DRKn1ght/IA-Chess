@@ -71,7 +71,7 @@ class Ai:
         board.turn = 'b'
         best_move = None
         max_eval = float('-inf')
-        legal_moves = board.get_specific_legal_moves('b')
+        legal_moves = board.get_legal_moves()
         initial_positions = []
         for piece, possible_moves in legal_moves:
             initial_positions.append((piece, piece.square))
@@ -96,11 +96,6 @@ class Ai:
         # The higher the score, the better the board for the AI.
         # You can use a simple material-based evaluation or a more complex evaluation function.
         # Sample material-based evaluation function:
-        if board.game_active_AI == False:
-            board.game_active_AI = True
-            if board.turn == 'b':
-                return -1000
-            return 1000
 
         score = 0
         piece_table = {

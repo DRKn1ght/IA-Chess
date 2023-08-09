@@ -19,7 +19,7 @@ class Board:
         self.positions = {}
         self.board_stack = []
         self.game_active = True
-        self.game_active_AI = True
+        self.game_active_AI = [True, None]
         self.turn = 'w'
         self.last_move = []
 
@@ -164,7 +164,7 @@ class Board:
             enemy_pieces = self.white_pieces if capture.color == 'w' else self.black_pieces
             enemy_pieces.remove(capture)
             if type(capture) is King:
-                self.game_active_AI = False
+                self.game_active_AI = [False, capture.color]
         self.last_move.append((new_move, capture))
         # Update the turn
 

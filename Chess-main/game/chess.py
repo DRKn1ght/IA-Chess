@@ -31,7 +31,7 @@ class ChessGame:
         self.results = Results(self)
         self.clock = pygame.time.Clock()
 
-        self.board._init_from_FEN("r1bqkb1r/ppp1pppp/8/3p2B1/1n1Pn3/2NQ1N2/PPP1PPPP/R3KB1R w -")
+        self.board._init_from_FEN("5rk1/p4ppp/2p1bq2/3n4/8/QP1B4/P1Pr1PPP/4R1K1 w -")
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
