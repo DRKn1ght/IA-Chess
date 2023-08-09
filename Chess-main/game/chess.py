@@ -35,7 +35,7 @@ class ChessGame:
         self.sound = pygame.mixer.Sound("Assets/chessmove.wav")
 
         self.active_piece = None
-        self.chess_ai = Ai(self, self.board, depth=3)
+        self.chess_ai = Ai(self, depth=3)
         self.board.test()
 
     def run_game(self):
@@ -68,7 +68,7 @@ class ChessGame:
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
 
         if self.active_piece: 
-            if checked_square in self.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
+            if checked_square in self.active_piece.possible_captures(self.board.white_pieces, self.board.black_pieces, king):
                 self._move(friendly_pieces, enemy_pieces, checked_square)
             else:
                 active_piece = None
@@ -155,7 +155,7 @@ class ChessGame:
     def _check_checkmate(self, color, pieces, king):
         """ Check if the king is in checkmate """
         for piece in pieces:
-            if piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
+            if piece.possible_captures(self.board.white_pieces, self.board.black_pieces, king):
                 return None
 
         if king.check(self.board.white_pieces, self.board.black_pieces):
@@ -168,7 +168,7 @@ class ChessGame:
         # Check stalemate
         movements = []
         for piece in pieces:
-            movements.extend(piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king))
+            movements.extend(piece.possible_captures(self.board.white_pieces, self.board.black_pieces, king))
         if not movements and not king.check(self.board.white_pieces, self.board.black_pieces):
             self.results.prep("The game is draw for stalemate")
             self.board.game_active = False
@@ -191,7 +191,7 @@ class ChessGame:
                          self.active_piece.square[1]*self.settings.square_size, self.settings.square_size, 
                          self.settings.square_size), 5, 1)       
 
-        for movement in self.active_piece.possible_movements(self.board.white_pieces, self.board.black_pieces, king):
+        for movement in self.active_piece.possible_captures(self.board.white_pieces, self.board.black_pieces, king):
             pygame.draw.circle(self.screen, self.settings.movement_color, ((movement[0]+0.5)*self.settings.square_size, 
                               (movement[1]+0.5)*self.settings.square_size), self.settings.square_size//3)
 

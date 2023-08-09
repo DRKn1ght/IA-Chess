@@ -99,12 +99,17 @@ def FEN_to_board(ai_game, FEN):
             piece_color = 'w' if char.isupper() else 'b'
             piece = piece_class(ai_game, (col, row), piece_color)
             if (piece_color == 'w'):
+                if type(piece) is Pawn and row != 6:
+                    piece.already_moved = True
                 if type(piece) is King:
                     white_king = piece
                 white_pieces.add(piece)
             else:
+                if type(piece) is Pawn and row != 1:
+                    piece.already_moved = True
                 if type(piece) is King:
                     black_king = piece
                 black_pieces.add(piece)
+            ai_game.square[(col, row)] = piece
             col += 1
     return white_king, white_pieces, black_king, black_pieces

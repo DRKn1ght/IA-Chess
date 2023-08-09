@@ -16,4 +16,4 @@ class Settings:
         self.active_color = (0,255,0)
         self.text_color = (255,255,255)
 
-        self.FPS = 60
+        self.FPS = 500

@@ -117,4 +117,11 @@ class King(Piece):
         possible_movements.extend(self.castle(white_pieces, black_pieces))
 
         return possible_movements
+    
+    def possible_captures(self, white_pieces, black_pieces, king):
+        possible_captures = super().possible_captures(white_pieces, black_pieces, self)
+
+        possible_captures.extend(self.castle(white_pieces, black_pieces))
+
+        return possible_captures
 

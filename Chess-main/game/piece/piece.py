@@ -43,6 +43,7 @@ class Piece(Sprite):
         real_square = self.square
         enemy_pieces = white_pieces if self.color == "b" else black_pieces
         possible_movements = []
+        possible_captures = []
         for movement in self.theoretical_movements(white_pieces, black_pieces):
             capture = self.movement(movement)
 
@@ -50,17 +51,16 @@ class Piece(Sprite):
             if capture:
                 enemy_pieces.remove(capture)
 
-            if not king.check(white_pieces, black_pieces):
-                if movement[0] >= 0 and movement[0] < 8 and movement[1] >= 0 and movement[1] < 8:
+            if not capture:
                     possible_movements.append(movement)
 
             if capture:
                 enemy_pieces.add(capture)
-                possible_movements.append(movement)
+                possible_captures.append(movement)
             self.movement(real_square)
             self.ai_game.square[movement] = capture
 
-        return possible_movements
+        return possible_captures + possible_movements
 
     def possible_captures(self, white_pieces, black_pieces, king):
         """ Return the possible movements of the piece """
@@ -79,7 +79,6 @@ class Piece(Sprite):
 
             if capture:
                 enemy_pieces.add(capture)
-                possible_movements.append(movement)
             self.movement(real_square)
             self.ai_game.square[movement] = capture
 

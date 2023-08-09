@@ -1,4 +1,6 @@
 import numpy as np
+import time
+from Board.board import Board
 from piece.pawn import Pawn
 from piece.king import King
 from piece.bishop import Bishop
@@ -8,10 +10,10 @@ from piece.rook import Rook
 
 
 class Ai:
-    def __init__(self, ai_game, board, depth):
+    def __init__(self, ai_game, depth):
         self.depth = depth
-        self.board = board
         self.ai_game = ai_game
+        self.total_time = 0
         self.piece_values = {
             Pawn: 10,
             Knight: 30,
@@ -23,56 +25,64 @@ class Ai:
 
 
     def minimax_alpha_beta(self, board, depth, alpha, beta, maximizing_player):
-        if depth == 0 or self.board.game_active == False:
-            return self.evaluate_board(self.board)
-
+        if depth == 0:
+            return self.evaluate_board(board)
 
         if maximizing_player:
-            legal_moves = self.board.get_specific_legal_moves('b')
+            start_time = time.time()
+            legal_moves = board.get_specific_legal_moves('b')
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            self.total_time += elapsed_time
+            print(f"total_time: {self.total_time} seconds")
             max_eval = float('-inf')
             for piece, possible_moves in legal_moves:
                 for move in possible_moves:
-                    self.board.fake_push((piece, move))
-                    eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, False)
+                    board.fake_push((piece, move))
+                    eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, False)
                     max_eval = max(max_eval, eval)
                     alpha = max(alpha, eval)
-                    self.board.fake_pop()
+                    board.fake_pop()
                     if beta <= alpha:
                         return max_eval
             return max_eval
         else:
             min_eval = float('inf')
-            legal_moves = self.board.get_specific_legal_moves('w')
+            start_time = time.time()
+            legal_moves = board.get_specific_legal_moves('w')
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            self.total_time += elapsed_time
+            print(f"total_time: {self.total_time} seconds")
             for piece, possible_moves in legal_moves:
                 for move in possible_moves:
-                    self.board.fake_push((piece, move))
-                    eval = self.minimax_alpha_beta(self.board, depth - 1, alpha, beta, True)
+                    board.fake_push((piece, move))
+                    eval = self.minimax_alpha_beta(board, depth - 1, alpha, beta, True)
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
-                    self.board.fake_pop()
+                    board.fake_pop()
                     if beta <= alpha:
                         return min_eval
             return min_eval
 
     def get_best_move(self, fen):
-        #self.board = self.board(self.ai_game)
-        #self.board._init_from_FEN(fen)
-        #self.board.turn = 'b'
+        board = Board(self.ai_game)
+        board._init_from_FEN(fen)
+        board.turn = 'b'
         best_move = None
         max_eval = float('-inf')
-        legal_moves = self.board.get_specific_legal_moves('b')
+        legal_moves = board.get_specific_legal_moves('b')
         initial_positions = []
         for piece, possible_moves in legal_moves:
             initial_positions.append((piece, piece.square))
         for piece, possible_moves in legal_moves:
-            old_pos = piece.square
             for move in possible_moves:
-                self.board.fake_push((piece, move))
-                eval = self.minimax_alpha_beta(self.board, self.depth - 1, float('-inf'), float('inf'), False)
+                board.fake_push((piece, move))
+                eval = self.minimax_alpha_beta(board, self.depth - 1, float('-inf'), float('inf'), False)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = (piece, move)
-                self.board.fake_pop()
+                board.fake_pop()
         for piece, pos in initial_positions:
             best_piece, move = best_move
             if (piece == best_piece):
@@ -82,10 +92,16 @@ class Ai:
         return initial_pos, best_move[1]
 
     def evaluate_board(self, board):
-        # Implement a self.board evaluation function here to assign a score to a given self.board state.
-        # The higher the score, the better the self.board for the AI.
+        # Implement a board evaluation function here to assign a score to a given board state.
+        # The higher the score, the better the board for the AI.
         # You can use a simple material-based evaluation or a more complex evaluation function.
         # Sample material-based evaluation function:
+        if board.game_active_AI == False:
+            board.game_active_AI = True
+            if board.turn == 'b':
+                return 1000
+            return -1000
+
         score = 0
         piece_table = {
             Queen: np.array([
@@ -155,9 +171,9 @@ class Ai:
             ])
             
         }
-        all_pieces = self.board.black_pieces.sprites() + self.board.white_pieces.sprites()
+        all_pieces = board.black_pieces.sprites() + board.white_pieces.sprites()
         for piece in all_pieces:
-            if self.board.turn == 'b':
+            if board.turn == 'b':
                 score += piece_table[type(piece)][piece.square[0], piece.square[1]]
             else:
                 score += np.flip(piece_table[type(piece)])[piece.square[0], piece.square[1]] * (-1)

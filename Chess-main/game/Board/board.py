@@ -15,12 +15,11 @@ class Board:
         self.screen = ai_game.screen
         self.settings = ai_game.settings
         self.square = np.full((8, 8), None, dtype = object)
-        self.white_king, self.white_pieces = create_white_pieces(self)
-        self.black_king, self.black_pieces = create_black_pieces(self)
         self.fifty_movements = 0
         self.positions = {}
         self.board_stack = []
         self.game_active = True
+        self.game_active_AI = True
         self.turn = 'w'
         self.last_move = []
 
@@ -164,6 +163,8 @@ class Board:
         if capture is not None:
             enemy_pieces = self.white_pieces if capture.color == 'w' else self.black_pieces
             enemy_pieces.remove(capture)
+            if type(capture) is King:
+                self.game_active_AI = False
         self.last_move.append((new_move, capture))
         # Update the turn
 
