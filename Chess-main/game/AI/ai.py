@@ -99,8 +99,8 @@ class Ai:
         if board.game_active_AI == False:
             board.game_active_AI = True
             if board.turn == 'b':
-                return 1000
-            return -1000
+                return -1000
+            return 1000
 
         score = 0
         piece_table = {
