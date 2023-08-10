@@ -45,6 +45,9 @@ class Piece(Sprite):
         possible_movements = []
         possible_captures = []
         for movement in self.theoretical_movements(white_pieces, black_pieces):
+            movx, movy = movement
+            if movx >= 8 or movy >= 8 or movy < 0 or movx < 0:
+                 continue
             capture = self.movement(movement)
 
             # If there are a capture delete the piece temporarily
@@ -68,6 +71,9 @@ class Piece(Sprite):
         enemy_pieces = white_pieces if self.color == "b" else black_pieces
         possible_movements = []
         for movement in self.theoretical_movements(white_pieces, black_pieces):
+            movx, movy = movement
+            if movx >= 8 or movy >= 8 or movy < 0 or movx < 0:
+                 continue
             capture = self.movement(movement)
 
             # If there are a capture delete the piece temporarily

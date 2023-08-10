@@ -26,11 +26,12 @@ class Ai:
 
     def minimax_alpha_beta(self, board, depth, alpha, beta, maximizing_player):
         if depth == 0:
-            return self.evaluate_board(board)
-
+            return self.evaluate_board(board, maximizing_player)
+        player1 = board.turn
+        player2 = 'w' if player1 == 'b' else 'b'
         if maximizing_player:
             start_time = time.time()
-            legal_moves = board.get_specific_legal_moves('b')
+            legal_moves = board.get_specific_legal_moves(player1)
             end_time = time.time()
             elapsed_time = end_time - start_time
             self.total_time += elapsed_time
@@ -49,7 +50,7 @@ class Ai:
         else:
             min_eval = float('inf')
             start_time = time.time()
-            legal_moves = board.get_specific_legal_moves('w')
+            legal_moves = board.get_specific_legal_moves(player2)
             end_time = time.time()
             elapsed_time = end_time - start_time
             self.total_time += elapsed_time
@@ -65,10 +66,10 @@ class Ai:
                         return min_eval
             return min_eval
 
-    def get_best_move(self, fen):
+    def get_best_move(self, fen, color):
         board = Board(self.ai_game)
         board._init_from_FEN(fen)
-        board.turn = 'b'
+        board.turn = color
         best_move = None
         max_eval = float('-inf')
         legal_moves = board.get_legal_moves()
@@ -91,7 +92,7 @@ class Ai:
         print("best: ", max_eval, best_move[1])
         return initial_pos, best_move[1]
 
-    def evaluate_board(self, board):
+    def evaluate_board(self, board, maximizing_player):
         # Implement a board evaluation function here to assign a score to a given board state.
         # The higher the score, the better the board for the AI.
         # You can use a simple material-based evaluation or a more complex evaluation function.
@@ -133,7 +134,7 @@ class Ai:
             ]),
 
             Rook: np.array([
-                [0.0, -1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                 [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
@@ -145,8 +146,8 @@ class Ai:
 
             Pawn: np.array([
                 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
-                [1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
+                [5.0, 5.0, 5.0, 3.0, 3.0, 5.0, 5.0, 5.0],
+                [1.0, 1.0, 2.0, 3.0, 10.0, 2.0, 1.0, 1.0],
                 [0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5],
                 [0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0],
                 [0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5],
@@ -167,14 +168,21 @@ class Ai:
             
         }
         all_pieces = board.black_pieces.sprites() + board.white_pieces.sprites()
-        for piece in all_pieces:
-            if board.turn == 'b':
-                score += piece_table[type(piece)][piece.square[0], piece.square[1]]
-            else:
-                score += np.flip(piece_table[type(piece)])[piece.square[0], piece.square[1]] * (-1)
-            if piece.color == 'w':
-                score += self.piece_values[type(piece)] * -1
-            else:
-                score += self.piece_values[type(piece)]
+        player1 = board.turn
+        player2 = 'w' if player1 == 'b' else 'b'
+        if player1 == 'b':
+            for piece in all_pieces:
+                score += piece_table[type(piece)][piece.square[1], piece.square[0]]
+                if piece.color == 'w':
+                    score += self.piece_values[type(piece)] * -1
+                else:
+                    score += self.piece_values[type(piece)]
+        else:
+            for piece in all_pieces:
+                score += (piece_table[type(piece)])[piece.square[1], piece.square[0]]
+                if piece.color == 'b':
+                    score += self.piece_values[type(piece)] * -1
+                else:
+                    score += self.piece_values[type(piece)]
         #print("score", score)
         return score
