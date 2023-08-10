@@ -14,11 +14,10 @@ class ChessGame:
 
     def __init__(self):
         """ Create a new game instance """
-        pygame.init()
         self.settings = Settings()
         
         self.screen = pygame.display.set_mode(self.settings.screen_size)
-        pygame.display.set_caption("Chess Game")
+
         self.square_size = self.settings.square_size
         self.board = Board(self)
         self.array = []
@@ -38,12 +37,12 @@ class ChessGame:
         self.chess_ai = Ai(self, depth=3)
         self.board.test()
 
-    def run_game(self):
+    def run_game(self, mode):
         """ Init the game loop """
         while True:
             self._check_events()
             self._update_screen()
-            self._auto_move()
+            self._auto_move(mode)
             self.clock.tick(self.settings.FPS)
 
     def _check_events(self):
@@ -220,16 +219,27 @@ class ChessGame:
 
         pygame.display.update()
 
-    def _auto_move(self):
-        if (self.board.turn == 'b'):
-            friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
-            enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
-            initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position(), 'b')
-            piece_to_move = self.board.get_piece_at_square(initial_pos)
-            self.active_piece = piece_to_move
-            self._move(friendly_pieces, enemy_pieces, move)
-
-
-if __name__ == "__main__":
-    ai_game = ChessGame()
-    ai_game.run_game()
+    def _auto_move(self, mode):
+        if mode == "human":
+            if self.board.turn == 'b':
+                friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
+                enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
+                initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position(), 'b')
+                piece_to_move = self.board.get_piece_at_square(initial_pos)
+                self.active_piece = piece_to_move
+                self._move(friendly_pieces, enemy_pieces, move)
+        elif mode == "AI":
+            if self.board.turn == 'b':
+                friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
+                enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
+                initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position(), 'b')
+                piece_to_move = self.board.get_piece_at_square(initial_pos)
+                self.active_piece = piece_to_move
+                self._move(friendly_pieces, enemy_pieces, move)
+            else:
+                friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
+                enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
+                initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position(), 'w')
+                piece_to_move = self.board.get_piece_at_square(initial_pos)
+                self.active_piece = piece_to_move
+                self._move(friendly_pieces, enemy_pieces, move)

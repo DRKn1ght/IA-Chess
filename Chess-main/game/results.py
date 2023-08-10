@@ -9,7 +9,7 @@ class Results:
         self.screen_rect = self.screen.get_rect()
         self.settings = ai_game.settings
 
-        self.font = pygame.font.SysFont(None, 48)
+        self.font = pygame.font.SysFont("Comic Sans MS", 48)
 
         self.press_p_text = self.font.render("Press p to start", True,
                                              self.settings.text_color)
