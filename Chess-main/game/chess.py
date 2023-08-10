@@ -228,13 +228,7 @@ class ChessGame:
             piece_to_move = self.board.get_piece_at_square(initial_pos)
             self.active_piece = piece_to_move
             self._move(friendly_pieces, enemy_pieces, move)
-        else:
-            friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
-            enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
-            initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position(), 'w')
-            piece_to_move = self.board.get_piece_at_square(initial_pos)
-            self.active_piece = piece_to_move
-            self._move(friendly_pieces, enemy_pieces, move)
+
 
 if __name__ == "__main__":
     ai_game = ChessGame()

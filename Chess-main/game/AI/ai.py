@@ -32,10 +32,6 @@ class Ai:
         if maximizing_player:
             start_time = time.time()
             legal_moves = board.get_specific_legal_moves(player1)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            self.total_time += elapsed_time
-            print(f"total_time: {self.total_time} seconds")
             max_eval = float('-inf')
             for piece, possible_moves in legal_moves:
                 for move in possible_moves:
@@ -51,10 +47,7 @@ class Ai:
             min_eval = float('inf')
             start_time = time.time()
             legal_moves = board.get_specific_legal_moves(player2)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            self.total_time += elapsed_time
-            print(f"total_time: {self.total_time} seconds")
+
             for piece, possible_moves in legal_moves:
                 for move in possible_moves:
                     board.fake_push((piece, move))
@@ -83,6 +76,7 @@ class Ai:
                 if eval > max_eval:
                     max_eval = eval
                     best_move = (piece, move)
+                   
                 board.fake_pop()
         for piece, pos in initial_positions:
             best_piece, move = best_move
@@ -112,7 +106,7 @@ class Ai:
             ]),
 
             King: np.array([
-                [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+                [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -3.0, -3.0],
                 [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
                 [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
                 [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
@@ -134,7 +128,7 @@ class Ai:
             ]),
 
             Rook: np.array([
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0],
                 [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
                 [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
@@ -146,9 +140,9 @@ class Ai:
 
             Pawn: np.array([
                 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [5.0, 5.0, 5.0, 3.0, 3.0, 5.0, 5.0, 5.0],
-                [1.0, 1.0, 2.0, 3.0, 10.0, 2.0, 1.0, 1.0],
-                [0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5],
+                [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
+                [1.0, 1.0, 2.0, 4.0, 4.0, 2.0, 1.0, 4.0],
+                [0.5, 0.5, 1.0, 4.0, 4.0, 1.0, 0.5, 0.5],
                 [0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0],
                 [0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5],
                 [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
@@ -169,7 +163,6 @@ class Ai:
         }
         all_pieces = board.black_pieces.sprites() + board.white_pieces.sprites()
         player1 = board.turn
-        player2 = 'w' if player1 == 'b' else 'b'
         if player1 == 'b':
             for piece in all_pieces:
                 score += piece_table[type(piece)][piece.square[1], piece.square[0]]
