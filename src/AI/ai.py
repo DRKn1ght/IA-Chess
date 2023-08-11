@@ -1,12 +1,12 @@
 import numpy as np
 import time
 from Board.board import Board
-from piece.pawn import Pawn
-from piece.king import King
-from piece.bishop import Bishop
-from piece.knight import Knight
-from piece.queen import Queen
-from piece.rook import Rook
+from Piece.pawn import Pawn
+from Piece.king import King
+from Piece.bishop import Bishop
+from Piece.knight import Knight
+from Piece.queen import Queen
+from Piece.rook import Rook
 
 
 class Ai:

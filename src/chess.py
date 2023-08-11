@@ -5,8 +5,8 @@ from pygame.locals import *
 from settings import Settings
 from results import Results
 from Board.board import Board
-from piece.pawn import Pawn
-from piece.king import King
+from Piece.pawn import Pawn
+from Piece.king import King
 from AI.ai import Ai
 
 class ChessGame:

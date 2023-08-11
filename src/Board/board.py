@@ -1,11 +1,11 @@
 import numpy as np
-from piece.pawn import Pawn
-from piece.king import King
-from piece.rook import Rook
-from piece.knight import Knight
-from piece.queen import Queen
-from piece.bishop import Bishop
-from piece.new_game import create_white_pieces, create_black_pieces, FEN_to_board
+from Piece.pawn import Pawn
+from Piece.king import King
+from Piece.rook import Rook
+from Piece.knight import Knight
+from Piece.queen import Queen
+from Piece.bishop import Bishop
+from Piece.new_game import create_white_pieces, create_black_pieces, FEN_to_board
 
 class Board:
     """ A class to manage the board """
