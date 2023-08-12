@@ -81,7 +81,7 @@ def FEN_to_board(ai_game, FEN):
         'P': Pawn,
     }
 
-    board_position, active_color, castling_rights = FEN.split()
+    board_position, active_color, castling_rights, en_passant, _, _ = FEN.split()
 
     white_pieces = Group()
     black_pieces = Group()

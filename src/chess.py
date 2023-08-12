@@ -1,7 +1,7 @@
 import pygame, sys
 
 from pygame.locals import *
-
+from stockfish import Stockfish
 from settings import Settings
 from results import Results
 from Board.board import Board
@@ -35,6 +35,7 @@ class ChessGame:
 
         self.active_piece = None
         self.chess_ai = Ai(self, depth=3)
+        self.stockfish = Stockfish(path= self.settings.StockFish_Path, depth=1)
         self.board.test()
 
     def run_game(self, mode):
@@ -89,6 +90,8 @@ class ChessGame:
 
     def _move(self, friendly_pieces, enemy_pieces, square):
         """ Move the active piece, realize the captures and change of turn """
+        has_capture = self.board.square[square]
+        old_pos = self.active_piece.square
         # The next lines is for the en passant capture 
 
         # Capture the piece en passant
@@ -136,20 +139,23 @@ class ChessGame:
             # The pawn is turned into a queen
             self.active_piece.promotion(friendly_pieces)
 
-        actual_position = Board._get_position(self.board)
+        if (self.board.turn == 'w'):
+            self.board.total_turns += 1
+        self.board.last_move = (self.active_piece, square, has_capture)
+        self.board.update_PGN(old_pos)
+        print(self.board._get_FEN_position())
+        print(self.board.PGN)
+        actual_position = self.board._get_position()
         if actual_position in self.board.positions.keys():
             self.board.positions[actual_position] += 1
         else:
             self.board.positions[actual_position] = 1
-
         self.board.turn = "b" if self.board.turn == "w" else "w"
-        print(self.board._get_FEN_position())
         self.active_piece = None
 
         king = self.board.white_king if self.board.turn == "w" else self.board.black_king
         self._check_checkmate(self.board.turn, enemy_pieces, king)
         self._check_draws(enemy_pieces, king)
-
 
     def _check_checkmate(self, color, pieces, king):
         """ Check if the king is in checkmate """
@@ -220,6 +226,8 @@ class ChessGame:
         pygame.display.update()
 
     def _auto_move(self, mode):
+        if self.board.game_active == False:
+            return
         if mode == "human":
             if self.board.turn == 'b':
                 friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
@@ -239,7 +247,9 @@ class ChessGame:
             else:
                 friendly_pieces = self.board.white_pieces if self.board.turn == "w" else self.board.black_pieces 
                 enemy_pieces = self.board.white_pieces if self.board.turn == "b" else self.board.black_pieces
-                initial_pos, move = self.chess_ai.get_best_move(self.board._get_FEN_position(), 'w')
-                piece_to_move = self.board.get_piece_at_square(initial_pos)
-                self.active_piece = piece_to_move
-                self._move(friendly_pieces, enemy_pieces, move)
+                self.stockfish.set_fen_position(self.board._get_FEN_position())
+                move = self.stockfish.get_best_move()
+                if move:
+                    piece_to_move = self.board.get_piece_at_square(self.board.pos_to_movement(move[0:2]))
+                    self.active_piece = piece_to_move
+                    self._move(friendly_pieces, enemy_pieces, self.board.pos_to_movement(move[2:4]))

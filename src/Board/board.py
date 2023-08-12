@@ -16,12 +16,15 @@ class Board:
         self.settings = ai_game.settings
         self.square = np.full((8, 8), None, dtype = object)
         self.fifty_movements = 0
+        self.total_turns = 0
+        self.last_move = None
+        self.PGN = ""
         self.positions = {}
         self.board_stack = []
         self.game_active = True
         self.game_active_AI = [True, None]
         self.turn = 'w'
-        self.last_move = []
+        self.last_move_AI = []
 
     def _get_position(self):
         """ Return a string representing the position """
@@ -91,11 +94,43 @@ class Board:
             castling_rights += 'k'
         if len(self.black_king.large_castle(self.white_pieces, self.black_pieces)[0]) > 0:
             castling_rights += 'q'
+        if len(castling_rights) == 0:
+            castling_rights = "-"
 
-        en_passant_target = Board.get_en_passant_target(self)
+        en_passant_target = '-'
 
-        fen_notation = f"{fen_position} {active_color} {en_passant_target}"
+        fen_notation = f"{fen_position} {active_color} {castling_rights} {en_passant_target} {self.fifty_movements} {self.total_turns}"
         return fen_notation
+
+    def update_PGN(self, old_pos):
+        letter = 'abcdefgh'
+        piece, square, has_capture = self.last_move
+        old_x, _ = old_pos
+                
+        if self.turn == "w":
+            self.PGN += str(self.total_turns) + ". "
+        if type(piece) is King: 
+            print(old_pos, square)
+            # short castles
+            if old_pos[0] == 4 and square[0] == 6:
+                self.PGN += "O-O "
+                return
+            
+            # long castles
+            if old_pos[0] == 4 and square[0] == 2:
+                self.PGN += "O-O-O "
+                return
+            
+        pos_str = self.movement_to_pos(self.last_move)
+        if has_capture:
+            if type(piece) is Pawn:
+                pos_str = letter[old_x] + pos_str[:0] + "x" + pos_str[0:]
+            else:
+                pos_str = letter[old_x] + pos_str[:1] + "x" + pos_str[1:]
+        if type(piece) is not Pawn:
+            self.PGN += pos_str[:1] + letter[old_x] + pos_str[1:] + " "
+        else:
+            self.PGN += pos_str + " "
 
     def get_piece_at_square(self, square):
         piece = self.square[square]
@@ -104,8 +139,6 @@ class Board:
         return None
     
     def get_en_passant_target(self):
-        letter = 'abcdefgh'
-        nums = '87654321'
         en_passant_target = '-'
         friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
         enemy_pieces = self.white_pieces if self.turn == "b" else self.black_pieces
@@ -114,9 +147,31 @@ class Board:
                 target = piece.move_en_passant(enemy_pieces)
                 if len(target) > 0:
                     target = target[0]
-                    en_passant_target = letter[target[0]] + nums[target[1]]
+                    en_passant_target = self.movement_to_pos((Pawn, target, None))
                     break
         return en_passant_target
+    
+    def movement_to_pos(self, movement):
+        piece, square, _ = movement
+        letter = 'abcdefgh'
+        nums = '87654321'
+        piece_mapping = {
+        Rook: 'R',
+        Knight: 'N',
+        Bishop: 'B',
+        Queen: 'Q',
+        King: 'K',
+        Pawn: '',
+        }
+        
+        return piece_mapping[type(piece)] + letter[square[0]] + nums[square[1]]
+    
+    def pos_to_movement(self, pos):
+        file_map = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+        file = file_map[pos[0]]
+        rank = 8 - int(pos[1])
+        return (file, rank)
+
     
     def _reset_all(self):
         """ Reset all and init a new game """
@@ -165,7 +220,7 @@ class Board:
             enemy_pieces.remove(capture)
             if type(capture) is King:
                 self.game_active_AI = [False, capture.color]
-        self.last_move.append((new_move, capture))
+        self.last_move_AI.append((new_move, capture))
         # Update the turn
 
 
@@ -175,9 +230,9 @@ class Board:
             self._init_from_FEN(fen_position)
 
     def fake_pop(self):
-        if len(self.last_move) > 0:
-            #print(self.last_move)
-            old_state = self.last_move.pop()
+        if len(self.last_move_AI) > 0:
+            #print(self.last_move_AI)
+            old_state = self.last_move_AI.pop()
             old_piece, old_move = old_state[0]
             old_piece.movement(old_move)
             if old_state[1]:

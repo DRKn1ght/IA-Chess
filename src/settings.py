@@ -17,3 +17,5 @@ class Settings:
         self.text_color = (255,255,255)
 
         self.FPS = 500
+
+        self.StockFish_Path = "D:\Downloads\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2"
