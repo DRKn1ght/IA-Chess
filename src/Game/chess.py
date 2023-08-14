@@ -8,6 +8,7 @@ from Board.board import Board
 from piece.pawn import Pawn
 from piece.king import King
 from AI.ai import Ai
+from resource import resource
 
 class ChessGame:
     """ A class to manage the game """
@@ -31,7 +32,7 @@ class ChessGame:
         self.clock = pygame.time.Clock()
 
         self.board._reset_all()
-        self.sound = pygame.mixer.Sound("\IA-Chess\src\Assets\chessmove.wav")
+        self.sound = pygame.mixer.Sound(resource("Assets\chessmove.wav"))
 
         self.active_piece = None
         self.chess_ai = Ai(self, depth=3)
@@ -54,9 +55,9 @@ class ChessGame:
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN and self.board.game_active:
                 self._check_mousebuttondown_events(event)
-            elif event.type == KEYDOWN and not self.board.game_active:
-                if event.key == K_p:
-                    Board._reset_all(self)
+            # elif event.type == KEYDOWN and not self.board.game_active:
+            #     if event.key == K_p:
+            #         Board._reset_all(self)
 
     def _check_mousebuttondown_events(self, event):
         """ Respond to mousebuttondown events """

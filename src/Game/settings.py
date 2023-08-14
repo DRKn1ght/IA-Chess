@@ -1,4 +1,4 @@
-import subprocess
+from resource import resource
 
 class Settings:
     """ A class to manage the game settings """
@@ -20,4 +20,4 @@ class Settings:
 
         self.FPS = 500
 
-        self.StockFish_Path = "\IA-Chess\stockfish\stockfish-windows-x86-64-avx2.exe"
+        self.StockFish_Path = resource("stockfish\stockfish-windows-x86-64-avx2.exe")

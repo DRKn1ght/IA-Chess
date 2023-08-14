@@ -84,7 +84,6 @@ class Ai:
             if (piece == best_piece):
                 initial_pos = pos
                 break
-        #print("best: ", max_eval, best_move[1])
         return initial_pos, best_move[1]
 
     def evaluate_board(self, board, maximizing_player):
@@ -178,5 +177,4 @@ class Ai:
                     score += self.piece_values[type(piece)] * -1
                 else:
                     score += self.piece_values[type(piece)]
-        #print("score", score)
         return score

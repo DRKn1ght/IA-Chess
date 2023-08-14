@@ -110,7 +110,6 @@ class Board:
         if self.turn == "w":
             self.PGN += str(self.total_turns) + ". "
         if type(piece) is King: 
-            print(old_pos, square)
             # short castles
             if old_pos[0] == 4 and square[0] == 6:
                 self.PGN += "O-O "
@@ -199,7 +198,6 @@ class Board:
     def test(self):
         legal_moves = self.get_legal_moves()
         first = (legal_moves[0][0], legal_moves[0][1][0])
-        print(first)
         #self.push(first)
         #self.black_king.movement((3, 5))
 
@@ -231,7 +229,6 @@ class Board:
 
     def fake_pop(self):
         if len(self.last_move_AI) > 0:
-            #print(self.last_move_AI)
             old_state = self.last_move_AI.pop()
             old_piece, old_move = old_state[0]
             old_piece.movement(old_move)

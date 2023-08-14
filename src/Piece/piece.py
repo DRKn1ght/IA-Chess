@@ -1,5 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
+from resource import resource
 
 class Piece(Sprite):
     """ A class parent for pieces """
@@ -13,7 +14,9 @@ class Piece(Sprite):
 
         self.square = square
 
-        self.image = pygame.image.load(f"\IA-Chess\src\Assets\{image}.png")
+
+
+        self.image = pygame.image.load(resource(f"Assets\{image}.png"))
         self.image = pygame.transform.scale(self.image, (self.settings.square_size,
                                                          self.settings.square_size))
         self.rect = self.image.get_rect()
