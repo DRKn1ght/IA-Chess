@@ -13,7 +13,7 @@ class Piece(Sprite):
 
         self.square = square
 
-        self.image = pygame.image.load(f"Assets/{image}.png")
+        self.image = pygame.image.load(f"\IA-Chess\src\Assets\{image}.png")
         self.image = pygame.transform.scale(self.image, (self.settings.square_size,
                                                          self.settings.square_size))
         self.rect = self.image.get_rect()

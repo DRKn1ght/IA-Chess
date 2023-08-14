@@ -1,5 +1,5 @@
 import pygame
-from settings import Settings
+from Game.settings import Settings
 from GUI.draw_utils import make_button_surface, make_gradient_background
 
 BACKGROUND_COLOR_OUTER = pygame.Color('#003366')

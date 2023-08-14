@@ -1,5 +1,5 @@
 import pygame
-from settings import Settings
+from Game.settings import Settings
 from GUI.menu import Menu
 
 def main():

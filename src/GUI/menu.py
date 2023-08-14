@@ -1,7 +1,7 @@
 import pygame
-from settings import Settings
+from Game.settings import Settings
 from GUI.menu_drawer import Menu_Drawer
-from chess import ChessGame
+from Game.chess import ChessGame
 
 class Menu:
     def __init__(self, window):

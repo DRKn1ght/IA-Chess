@@ -1,12 +1,12 @@
 import numpy as np
 import time
 from Board.board import Board
-from Piece.pawn import Pawn
-from Piece.king import King
-from Piece.bishop import Bishop
-from Piece.knight import Knight
-from Piece.queen import Queen
-from Piece.rook import Rook
+from piece.pawn import Pawn
+from piece.king import King
+from piece.bishop import Bishop
+from piece.knight import Knight
+from piece.queen import Queen
+from piece.rook import Rook
 
 
 class Ai:
@@ -16,7 +16,7 @@ class Ai:
         self.total_time = 0
         self.moves = []
         self.piece_values = {
-            Pawn: 5,
+            Pawn: 10,
             Knight: 30,
             Bishop: 30,
             Rook: 50,
@@ -107,7 +107,7 @@ class Ai:
             ]),
 
             King: np.array([
-                [-3.0, -4.0, -4.0, -4.0, -5.0, -4.0, -3.0, -3.0],
+                [-3.0, -4.0, -3.0, -4.0, -5.0, -4.0, -3.0, -3.0],
                 [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
                 [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
                 [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
