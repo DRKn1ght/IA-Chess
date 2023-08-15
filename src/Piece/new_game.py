@@ -102,14 +102,31 @@ def FEN_to_board(ai_game, FEN):
                 if type(piece) is Pawn and row != 6:
                     piece.already_moved = True
                 if type(piece) is King:
+                    if (col, row) != (7, 4):
+                        piece.already_moved = True
                     white_king = piece
-                white_pieces.add(piece)
+                white_pieces.add(piece)            
             else:
                 if type(piece) is Pawn and row != 1:
                     piece.already_moved = True
                 if type(piece) is King:
+                    if (col, row) != (0, 4):
+                        piece.already_moved = True
                     black_king = piece
                 black_pieces.add(piece)
             ai_game.square[(col, row)] = piece
             col += 1
+    
+    if 'K' not in castling_rights:
+        r_rook = ai_game.square[(0, 7)]
+        if r_rook:
+            if type(r_rook) is Rook:
+                r_rook.already_moved = True
+    if 'Q' not in castling_rights:
+        l_rook = ai_game.square[(0, 0)]
+        if l_rook:
+            if type(l_rook) is Rook:
+                l_rook.already_moved = True
+            
+
     return white_king, white_pieces, black_king, black_pieces

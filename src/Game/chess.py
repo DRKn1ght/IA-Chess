@@ -55,9 +55,6 @@ class ChessGame:
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN and self.board.game_active:
                 self._check_mousebuttondown_events(event)
-            # elif event.type == KEYDOWN and not self.board.game_active:
-            #     if event.key == K_p:
-            #         Board._reset_all(self)
 
     def _check_mousebuttondown_events(self, event):
         """ Respond to mousebuttondown events """

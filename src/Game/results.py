@@ -11,11 +11,11 @@ class Results:
 
         self.font = pygame.font.SysFont("Comic Sans MS", 36)
 
-        # self.press_p_text = self.font.render("Press p to start", True,
-        #                                      self.settings.text_color)
-        # self.press_p_rect = self.press_p_text.get_rect()
-        # self.press_p_rect.centerx = self.screen_rect.centerx
-        # self.press_p_rect.centery = 1.25 * self.screen_rect.centery
+        self.press_p_text = self.font.render("To play again re-open the game", True,
+                                             self.settings.text_color)
+        self.press_p_rect = self.press_p_text.get_rect()
+        self.press_p_rect.centerx = self.screen_rect.centerx
+        self.press_p_rect.centery = 1.25 * self.screen_rect.centery
 
         self.prep()
 
