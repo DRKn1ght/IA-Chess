@@ -11,9 +11,9 @@ from piece.rook import Rook
 
 class Ai:
     def __init__(self, ai_game, depth):
+        """Inicializa a classe AI com a profundidade máxima de busca e a referência ao jogo."""
         self.depth = depth
         self.ai_game = ai_game
-        self.total_time = 0
         self.moves = []
         self.piece_values = {
             Pawn: 10,
@@ -26,12 +26,13 @@ class Ai:
 
 
     def minimax_alpha_beta(self, board, depth, alpha, beta, maximizing_player):
+        """Executa o algoritmo MiniMax com poda alpha-beta para avaliar posições de tabuleiro."""
+        
         if depth == 0:
-            return self.evaluate_board(board, maximizing_player)
+            return self.evaluate_board(board)
         player1 = board.turn
         player2 = 'w' if player1 == 'b' else 'b'
         if maximizing_player:
-            start_time = time.time()
             legal_moves = board.get_specific_legal_moves(player1)
             max_eval = float('-inf')
             for piece, possible_moves in legal_moves:
@@ -46,7 +47,6 @@ class Ai:
             return max_eval
         else:
             min_eval = float('inf')
-            start_time = time.time()
             legal_moves = board.get_specific_legal_moves(player2)
 
             for piece, possible_moves in legal_moves:
@@ -61,6 +61,8 @@ class Ai:
             return min_eval
 
     def get_best_move(self, fen, color):
+        """Obtém a melhor jogada possível para o estado atual do FEN."""
+        
         board = Board(self.ai_game)
         board._init_from_FEN(fen)
         board.turn = color
@@ -86,12 +88,9 @@ class Ai:
                 break
         return initial_pos, best_move[1]
 
-    def evaluate_board(self, board, maximizing_player):
-        # Implement a board evaluation function here to assign a score to a given board state.
-        # The higher the score, the better the board for the AI.
-        # You can use a simple material-based evaluation or a more complex evaluation function.
-        # Sample material-based evaluation function:
-
+    def evaluate_board(self, board):
+        """Calcula a pontuação do tabuleiro atual com base nas posições das peças e o valor de cada uma."""
+        
         score = 0
         piece_table = {
             Queen: np.array([

@@ -138,6 +138,7 @@ class Board:
         return None
     
     def get_en_passant_target(self):
+        """ Identifica se há algum en passant no jogo e retorna sua coordenada """
         en_passant_target = '-'
         friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
         enemy_pieces = self.white_pieces if self.turn == "b" else self.black_pieces
@@ -195,21 +196,8 @@ class Board:
 
         self.game_active = True
 
-    def test(self):
-        legal_moves = self.get_legal_moves()
-        first = (legal_moves[0][0], legal_moves[0][1][0])
-        #self.push(first)
-        #self.black_king.movement((3, 5))
-
-
-    def push(self, move):
-        piece, square = move
-        self.board_stack.append(self._get_FEN_position())
-
-        piece.movement(square)
-        self.turn = 'b' if self.turn == 'w' else 'w'
-
     def fake_push(self, move):
+        """ Faz um movimento no tabuleiro salvando o estado do jogo anterior """
         piece, square = move
         new_move = (piece, piece.square)
         capture = piece.movement(square)
@@ -219,15 +207,9 @@ class Board:
             if type(capture) is King:
                 self.game_active_AI = [False, capture.color]
         self.last_move_AI.append((new_move, capture))
-        # Update the turn
-
-
-    def pop(self):
-        if len(self.board_stack) > 0:
-            fen_position = self.board_stack.pop()
-            self._init_from_FEN(fen_position)
 
     def fake_pop(self):
+        """ Desfaz um movimento do tabuleiro retornando a um estado anteriormente salvo """
         if len(self.last_move_AI) > 0:
             old_state = self.last_move_AI.pop()
             old_piece, old_move = old_state[0]
@@ -238,6 +220,7 @@ class Board:
                 self.square[old_state[1].square] = old_state[1]
 
     def get_legal_moves(self):
+        """ Retorna uma lista com movimentos possíveis do jogador do turno atual """
         friendly_pieces = self.white_pieces if self.turn == "w" else self.black_pieces
         king = self.white_king if self.turn == "w" else self.black_king
         legal_moves = []
@@ -248,6 +231,7 @@ class Board:
         return legal_moves
     
     def get_specific_legal_moves(self, color):
+        """ Retorna uma lista com movimentos possíveis do jogador especificado """
         friendly_pieces = self.white_pieces if color == 'w' else self.black_pieces
         king = self.white_king if color == 'w' else self.black_king
         legal_moves = []

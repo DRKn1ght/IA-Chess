@@ -37,7 +37,6 @@ class ChessGame:
         self.active_piece = None
         self.chess_ai = Ai(self, depth=3)
         self.stockfish = Stockfish(path= self.settings.StockFish_Path, depth=1)
-        self.board.test()
 
     def run_game(self, mode):
         """ Init the game loop """
